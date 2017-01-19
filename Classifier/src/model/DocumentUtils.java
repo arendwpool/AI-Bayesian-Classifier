@@ -20,11 +20,11 @@ public class DocumentUtils {
 		while((line = bf.readLine()) != null) {
 			totalText += line;
 		}
-		SplitText(totalText);
+		FilterSplitText(totalText);
 		return new ArrayList<String>();
 	}
 
-	public static void SplitText(String totalText) {
+	public static void FilterSplitText(String totalText) {
 		totalText = totalText.replaceAll("[,.\\\\/\\[\\]\".,'{};:<>?!@#$%^&()-=+_~`€¤]", "");
 		String[] words = totalText.split(" ");
 		System.out.println(totalText);
