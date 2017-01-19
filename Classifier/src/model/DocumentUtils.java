@@ -37,11 +37,54 @@ public class DocumentUtils {
 		readDocument(filepath);
 	}
 	
-	public static void NormalizeText() {
+	/**
+	 * Verwijder stopwoorden Nick
+	 */
+	public static void removeStopwords() {
 		
 	}
 	
-	public static void RemoveStopWords(){
+	/**
+	 * Verwijder hoofdletter Nick
+	 */
+	public static void normalizeText() {
+		
+	}
+	
+	/**
+	 * tel aantal documenten Nick
+	 * @return
+	 */
+	public static int countDocs() {
+		return 0;
+	}
+	
+	/**
+	 * arend
+	 * @return
+	 */
+	public static int countDocsInClass() {
+		return 0;
+	}
+	/**
+	 * Arend
+	 */
+	public static void ConcatenateAllTextsOfDocsInClass() {
+		
+	}
+	
+	/**
+	 * Arend
+	 * @return
+	 */
+	public static int countTokensOfTerm() {
+		return 0;
+	}
+	
+	/**
+	 * Laad alle docs in filepath Arend
+	 */
+	public static void loadDocuments() {
 		
 	}
 }
