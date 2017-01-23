@@ -204,50 +204,34 @@ public class DocumentUtils {
 		while((line = bf.readLine()) != null) {
 			totalText += line;
 		}
-		FilterSplitText(totalText);
-		return new ArrayList<String>();
+		bf.close();
+		documentReader.close();
+		return FilterSplitText(totalText);
 	}
 
-	public static void FilterSplitText(String totalText) throws IOException {
+	public static ArrayList<String> FilterSplitText(String totalText) throws IOException {
 		ArrayList<String> result = new ArrayList<String>();
 		totalText = totalText.replaceAll("[,.\\\\/\\[\\]\".,'{};:<>?!@#$%^&()\\-=+_`€¤]", "");
 		String lowercased = totalText.toLowerCase();
 		lowercased.trim();
 		String[] words = lowercased.split(" ");
-		String[] stopwoo = stopwords.split("\n");
+		String[] stopwoo = stopwords.split("\n"); //IMPROVEME
 		for (String word : words) {
             wordsList.add(word);
         }
-		for (int i = 0; i < wordsList.size(); i++) {
-			 for (int j = 0; j < stopwoo.length; j++) {
-	                if (wordsList.contains(stopwoo[j])) {
-	                    wordsList.remove(stopwoo[j]);
-	                }
-	            }
-        }
-        for (String str : wordsList) {
-        	result.add(str);
-        }
-        System.out.print(result);
+		
+		for (String w :  words) 
+		{
+			if (!Arrays.asList(stopwoo).contains(w)) {
+				result.add(w);
+			}
+		}
+        return result;
 	}
 	
 	public static void main(String[] args) throws IOException {
 		String filepath = "txt/blogs";
-		loadDocuments(filepath);
-	}
-	
-	/**
-	 * Verwijder stopwoorden Nick
-	 */
-	public static void removeStopwords() {
-		
-	}
-	
-	/**
-	 * Verwijder hoofdletter Nick
-	 */
-	public static void normalizeText() {
-		
+		ConcatenateAllTextsOfDocsInClass(loadDocuments(filepath));
 	}
 	
 	/**
@@ -261,9 +245,22 @@ public class DocumentUtils {
 	}
 	/**
 	 * Arend
+	 * @throws IOException 
 	 */
-	public static ArrayList<String> ConcatenateAllTextsOfDocsInClass(ArrayList<String> filepaths, DocumentClass ic) {
-		return null;
+	public static ArrayList<String> ConcatenateAllTextsOfDocsInClass(ArrayList<String> filepaths/*, DocumentClass ic*/) throws IOException {
+		ArrayList<String> allWords = new ArrayList<String>();
+		int i = 0;
+		int i2 = filepaths.size();
+		for (String filepath : filepaths) {
+			i++;
+			System.out.println((i*100)/i2 + "%");
+			ArrayList<String> words = readDocument(filepath);
+			allWords.addAll(words);
+		}
+		for (String word : allWords) {
+			System.out.println(word+"\n");
+		}
+		return allWords;
 	}
 	
 	/**
@@ -278,9 +275,10 @@ public class DocumentUtils {
 	
 	/**
 	 * Laad alle docs in filepath Arend
+	 * @return 
 	 * @throws IOException 
 	 */
-	public static void loadDocuments(String parentfolder) throws IOException {
+	public static ArrayList<String> loadDocuments(String parentfolder) throws IOException {
 		Stream<Path> paths = Files.walk(Paths.get(parentfolder));
 		ArrayList<String> filepaths = new ArrayList<String>();
 		paths.forEach(filePath -> {
@@ -288,10 +286,8 @@ public class DocumentUtils {
 				filepaths.add(filePath.normalize().toString());
 			}
 		});
-		for (String s : filepaths) {
-			System.out.println(s);
-		}
 		paths.close();
+		return filepaths;
 	}
 	
 	/**
@@ -305,5 +301,9 @@ public class DocumentUtils {
 	public static ArrayList<String> ExtractTokensFromDoc(FilteredDocument d) {
 		// TODO Auto-generated method stub
 		return null;
+	}
+	
+	public static FilteredDocument toFilteredDocument(ArrayList<String> words) {
+		return new FilteredDocument(words);
 	}
 }
