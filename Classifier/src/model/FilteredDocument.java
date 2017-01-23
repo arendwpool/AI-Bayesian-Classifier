@@ -4,6 +4,9 @@ import java.util.ArrayList;
 
 public class FilteredDocument {
 	
+	public FilteredDocument (ArrayList<String> words) {
+		setWords(words);
+	}
 	private ArrayList<String> wordsInDocument = new ArrayList<String>();
 	private DocumentClass documentClass;
 
