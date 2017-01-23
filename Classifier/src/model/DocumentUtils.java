@@ -251,29 +251,33 @@ public class DocumentUtils {
 	 * tel aantal documenten Nick
 	 * @return
 	 */
-	public static int countDocs() {
+	public static int countDocs(ArrayList<String> filepaths) {
 		return 0;
 	}
 	
 	/**
 	 * arend
+	 * @param ic 
+	 * @param d 
 	 * @return
 	 */
-	public static int countDocsInClass() {
+	public static int countDocsInClass(ArrayList<String> d, DocumentClass ic) {
 		return 0;
 	}
 	/**
 	 * Arend
 	 */
-	public static void ConcatenateAllTextsOfDocsInClass() {
-		
+	public static ArrayList<String> ConcatenateAllTextsOfDocsInClass(ArrayList<String> filepaths, DocumentClass ic) {
+		return null;
 	}
 	
 	/**
 	 * Arend
+	 * @param word 
+	 * @param allWordsInClass 
 	 * @return
 	 */
-	public static int countTokensOfTerm() {
+	public static int countTokensOfTerm(ArrayList<String> allWordsInClass, String word) {
 		return 0;
 	}
 	
@@ -282,5 +286,18 @@ public class DocumentUtils {
 	 */
 	public static void loadDocuments() {
 		
+	}
+	
+	/**
+	 * Returnt alle woorden in een gefilterde zak met woorden
+	 * @param filePaths
+	 */
+	public static ArrayList<String> extractVocabulary(ArrayList<String> filePaths) {
+		return null;
+	}
+
+	public static ArrayList<String> ExtractTokensFromDoc(FilteredDocument d) {
+		// TODO Auto-generated method stub
+		return null;
 	}
 }
