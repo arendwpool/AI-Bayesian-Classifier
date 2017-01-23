@@ -1,5 +1,6 @@
 package model;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
 
@@ -10,12 +11,12 @@ public class Classifier {
 	private HashMap<DocumentClass, Double> classes = new HashMap<DocumentClass, Double>();
 	private HashMap<HashMap<DocumentClass, String>, Double> probability = new HashMap<HashMap<DocumentClass, String>, Double>();
 	
-	public void TrainMultinomialNaiveBayes(DocumentClass[] c, ArrayList<String> d) {
+	public void TrainMultinomialNaiveBayes(DocumentClass[] c, ArrayList<String> d) throws IOException {
 		for(DocumentClass ic : c) {
 			int n = DocumentUtils.countDocsInClass(d, ic);
 			double classPrior = n/numberOfDocuments;
 			classes.put(ic,  classPrior);
-			ArrayList<String> allWordsInClass = DocumentUtils.ConcatenateAllTextsOfDocsInClass(filepaths, ic);
+			ArrayList<String> allWordsInClass = DocumentUtils.concatenateAllTextsOfDocsInClass(filepaths, ic);
 			for(String word : allWords) {
 				int tokensOfTerm = DocumentUtils.countTokensOfTerm(allWordsInClass, word);
 				for(String word2 : allWords) {
@@ -34,8 +35,8 @@ public class Classifier {
 		return numerator/denominator;
 	}
 	
-	public double ApplyMultinomialNaiveBayes(FilteredDocument d) {
-		ArrayList<String> wordsInDocument = DocumentUtils.ExtractTokensFromDoc(d);
+	public double ApplyMultinomialNaiveBayes(FilteredDocument d) throws IOException {
+		ArrayList<String> wordsInDocument = DocumentUtils.readDocument(d.getPath());
 		double score = 0;
 		for (DocumentClass ic : classes.keySet()) {
 			score = Math.log(classes.get(ic));
