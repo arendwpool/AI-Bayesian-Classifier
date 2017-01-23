@@ -6,7 +6,7 @@ import java.util.HashMap;
 public class Classifier {
 	private ArrayList<String> filepaths;
 	private ArrayList<String> allWords = DocumentUtils.extractVocabulary(filepaths);
-	private int numberOfDocuments = DocumentUtils.countDocs(filepaths);
+	private int numberOfDocuments = filepaths.size();
 	private HashMap<DocumentClass, Double> classes = new HashMap<DocumentClass, Double>();
 	private HashMap<HashMap<DocumentClass, String>, Double> probability = new HashMap<HashMap<DocumentClass, String>, Double>();
 	

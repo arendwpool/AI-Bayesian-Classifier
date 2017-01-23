@@ -4,7 +4,11 @@ import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.ArrayList;
+import java.util.stream.Stream;
 
 public class DocumentUtils {
 	private static File document;
@@ -32,8 +36,8 @@ public class DocumentUtils {
 	}
 	
 	public static void main(String[] args) throws IOException {
-		String filepath = "txt/blogs/F/F-test2.txt";
-		readDocument(filepath);
+		String filepath = "txt/blogs";
+		loadDocuments(filepath);
 	}
 	
 	/**
@@ -48,14 +52,6 @@ public class DocumentUtils {
 	 */
 	public static void normalizeText() {
 		
-	}
-	
-	/**
-	 * tel aantal documenten Nick
-	 * @return
-	 */
-	public static int countDocs(ArrayList<String> filepaths) {
-		return 0;
 	}
 	
 	/**
@@ -86,9 +82,20 @@ public class DocumentUtils {
 	
 	/**
 	 * Laad alle docs in filepath Arend
+	 * @throws IOException 
 	 */
-	public static void loadDocuments() {
-		
+	public static void loadDocuments(String parentfolder) throws IOException {
+		Stream<Path> paths = Files.walk(Paths.get(parentfolder));
+		ArrayList<String> filepaths = new ArrayList<String>();
+		paths.forEach(filePath -> {
+			if (Files.isRegularFile(filePath)) {
+				filepaths.add(filePath.normalize().toString());
+			}
+		});
+		for (String s : filepaths) {
+			System.out.println(s);
+		}
+		paths.close();
 	}
 	
 	/**
