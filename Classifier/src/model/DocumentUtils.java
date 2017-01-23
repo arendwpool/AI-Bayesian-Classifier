@@ -98,4 +98,9 @@ public class DocumentUtils {
 	public static ArrayList<String> extractVocabulary(ArrayList<String> filePaths) {
 		return null;
 	}
+
+	public static ArrayList<String> ExtractTokensFromDoc(FilteredDocument d) {
+		// TODO Auto-generated method stub
+		return null;
+	}
 }
