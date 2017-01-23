@@ -34,8 +34,18 @@ public class Classifier {
 		return numerator/denominator;
 	}
 	
-	public void ApplyMultinomialNaiveBayes() {
-		
+	public double ApplyMultinomialNaiveBayes(FilteredDocument d) {
+		ArrayList<String> wordsInDocument = DocumentUtils.ExtractTokensFromDoc(d);
+		double score = 0;
+		for (DocumentClass ic : classes.keySet()) {
+			score = Math.log(classes.get(ic));
+			for (String word : wordsInDocument) {
+				HashMap<DocumentClass, String> wordInDoc = new HashMap<DocumentClass, String>();
+				wordInDoc.put(ic, word);
+				score += Math.log(probability.get(wordInDoc));
+			}
+		}
+		return score;
 	}
 	
 }
