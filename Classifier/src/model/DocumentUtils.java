@@ -234,14 +234,26 @@ public class DocumentUtils {
 		ConcatenateAllTextsOfDocsInClass(loadDocuments(filepath));
 	}
 	
+	public static boolean classChecker(String s, DocumentClass ic){
+			String[] deelpath = s.split("/");
+			return (deelpath[deelpath.length -1].equals(ic));
+	}
+	
 	/**
 	 * arend
 	 * @param ic 
 	 * @param d 
 	 * @return
 	 */
+	// tellen hoevaak class ic voor komt in alle paths d, door te kijken naar einde van path
 	public static int countDocsInClass(ArrayList<String> d, DocumentClass ic) {
-		return 0;
+		int counter = 0;
+		for(String path: d){
+			if(classChecker(path, ic)){
+			counter += 1;	
+			}
+		}
+		return counter;
 	}
 	/**
 	 * Arend
