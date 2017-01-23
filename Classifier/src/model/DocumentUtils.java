@@ -231,7 +231,7 @@ public class DocumentUtils {
 	
 	public static void main(String[] args) throws IOException {
 		String filepath = "txt/blogs";
-		ConcatenateAllTextsOfDocsInClass(loadDocuments(filepath));
+		concatenateAllTextsOfDocsInClass(loadDocuments(filepath), new DocumentClass());
 	}
 	
 	/**
@@ -247,20 +247,14 @@ public class DocumentUtils {
 	 * Arend
 	 * @throws IOException 
 	 */
-	public static ArrayList<String> ConcatenateAllTextsOfDocsInClass(ArrayList<String> filepaths/*, DocumentClass ic*/) throws IOException {
-		ArrayList<String> allWords = new ArrayList<String>();
-		int i = 0;
-		int i2 = filepaths.size();
-		for (String filepath : filepaths) {
-			i++;
-			System.out.println((i*100)/i2 + "%");
-			ArrayList<String> words = readDocument(filepath);
-			allWords.addAll(words);
+	public static ArrayList<String> concatenateAllTextsOfDocsInClass(ArrayList<String> allpaths, DocumentClass ic) throws IOException {
+		ArrayList<String> docsInClass = new ArrayList<String>();
+		for(String path : allpaths) {
+			if (classChecker(path, ic)) {
+				docsInClass.add(path);
+			}
 		}
-		for (String word : allWords) {
-			System.out.println(word+"\n");
-		}
-		return allWords;
+		return extractVocabulary(docsInClass);
 	}
 	
 	/**
@@ -299,17 +293,27 @@ public class DocumentUtils {
 	/**
 	 * Returnt alle woorden in een gefilterde zak met woorden
 	 * @param filePaths
+	 * @throws IOException 
 	 */
-	public static ArrayList<String> extractVocabulary(ArrayList<String> filePaths) {
-		return null;
+	public static ArrayList<String> extractVocabulary(ArrayList<String> filepaths) {
+		ArrayList<String> allWords = new ArrayList<String>();
+		int i = 0;
+		int i2 = filepaths.size();
+		for (String filepath : filepaths) {
+			i++;
+			System.out.println((i*100)/i2 + "%");
+			try {
+			ArrayList<String> words = readDocument(filepath);
+			allWords.addAll(words);
+			} catch (IOException e) {
+				System.out.println("FOUT");
+			}
+		}
+		return allWords;
 	}
 
-	public static ArrayList<String> ExtractTokensFromDoc(FilteredDocument d) {
-		// TODO Auto-generated method stub
-		return null;
-	}
 	
-	public static FilteredDocument toFilteredDocument(ArrayList<String> words) {
-		return new FilteredDocument(words);
+	public static FilteredDocument toFilteredDocument(ArrayList<String> words, String path) {
+		return new FilteredDocument(words, path);
 	}
 }
