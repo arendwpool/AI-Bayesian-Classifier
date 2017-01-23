@@ -273,7 +273,13 @@ public class DocumentUtils {
 	 * @return
 	 */
 	public static int countTokensOfTerm(ArrayList<String> allWordsInClass, String word) {
-		return 0;
+		int tokencount = 0;
+		for(String woorden: allWordsInClass){
+			if(woorden.equals(word)){
+				tokencount += 1;
+			}
+		}
+		return tokencount;
 	}
 	
 	/**
