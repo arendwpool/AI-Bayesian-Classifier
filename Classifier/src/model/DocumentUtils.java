@@ -9,6 +9,8 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashMap;
+import java.util.HashSet;
 import java.util.stream.Stream;
 
 
@@ -348,5 +350,55 @@ public class DocumentUtils {
 	
 	public static FilteredDocument toFilteredDocument(ArrayList<String> words, String path) {
 		return new FilteredDocument(words, path);
+	}
+	
+	public static double chiSquare(String w, ArrayList<DocumentClass> c, String ParentFolder) throws IOException{
+		HashMap<DocumentClass, Integer> M = new HashMap<DocumentClass, Integer>();
+		int N = 0;
+		double X2 = 0;
+		int W1 = 0;
+		int W2 = 0;
+		for(DocumentClass clas : c){
+			ArrayList<String> bestanden = loadDocuments(ParentFolder+clas.getName());
+			N += bestanden.size();
+			int counter = 0;
+			for(String path: bestanden){
+				ArrayList<String> woorden = readDocument(path);
+				if(Arrays.asList(woorden).contains(w)){
+					counter += 1;
+				}
+			}
+			M.put(clas, counter);
+			
+		}
+		for ( DocumentClass key : M.keySet()) {
+			Integer val = M.get(key);
+			W1 += val;
+		}
+		W2= N - W1;
+		for(DocumentClass a: c){
+			Integer val = M.get(a);
+			double boven = 0;
+			double exp = 0;
+			exp = expectedValue(W1,(loadDocuments(ParentFolder+a.getName())).size(),N);
+			boven = (val-exp);
+			X2 += (boven*boven)/exp;
+			double exp2 = 0;
+			double boven2 = 0;
+			exp2 = expectedValue(W2, (loadDocuments(ParentFolder+a.getName())).size(),N);
+			boven2 = ( (loadDocuments(ParentFolder+a.getName())).size()- val -exp2);
+			X2 += (boven2*boven2)/exp2;
+		}
+		
+		return X2;
+	}
+	
+	public static double expectedValue(int W, int C, int N){
+		double result = (W * C)/ N;
+		return result;
+	}
+	
+	public static boolean wordChecker(String bestand, String woord){
+		return(bestand.contains(woord));
 	}
 }
