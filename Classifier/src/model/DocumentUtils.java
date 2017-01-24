@@ -409,7 +409,6 @@ public class DocumentUtils {
 				}
 			}
 			M.put(clas, counter);
-			
 		}
 		for ( DocumentClass key : M.keySet()) {
 			Integer val = M.get(key);
@@ -420,14 +419,15 @@ public class DocumentUtils {
 			Integer val = M.get(a);
 			double boven = 0;
 			double exp = 0;
-			exp = expectedValue(W1,(loadDocuments(ParentFolder+"\\"+a.getName())).size(),N);
+			int C = loadDocuments(ParentFolder+"\\"+a.getName()).size();
+			exp = expectedValue(W1,C,N);
 			boven = (val-exp);
 			if(exp != 0 && boven != 0)
 			X2 += (boven*boven)/exp;
 			double exp2 = 0;
 			double boven2 = 0;
-			exp2 = expectedValue(W2, (loadDocuments(ParentFolder+"\\"+a.getName())).size(),N);
-			boven2 = ( (loadDocuments(ParentFolder+"\\"+a.getName())).size()- val -exp2);
+			exp2 = expectedValue(W2, C ,N);
+			boven2 = ( C - val -exp2);
 			X2 += (boven2*boven2)/exp2;
 		}
 		return X2;
