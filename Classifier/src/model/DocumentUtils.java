@@ -358,7 +358,7 @@ public class DocumentUtils {
 		ArrayList<DocumentClass> c = new ArrayList<DocumentClass>();
 		c.add(b);
 		c.add(a);
-		orderByChiSquare("txt/blogs/train", c);
+		orderByChiSquare("txt/blogs/test", c);
 	}
 	
 	public static Set<String> orderByChiSquare(String parentfolder, ArrayList<DocumentClass> c) throws IOException {
@@ -371,19 +371,6 @@ public class DocumentUtils {
 			System.out.println((double)(i*100)/words.size());
 			double chi = chiSquare(word, c, parentfolder);
 			chis.put(word, chi);
-		}
-		return null;
-	}
-	
-	public static Set<String> order(HashMap<String, Double> chis, int trim) {
-		Object[] a = chis.entrySet().toArray();
-		Arrays.sort(a, new Comparator() {
-			public int compare(Object o1, Object o2) {
-				return ((Map.Entry<String, Double>) o2).getValue().compareTo(((Map.Entry<String, Double>) o1).getValue());
-			}
-		});
-		for (Object e : a) {
-			System.out.println(((Map.Entry<String, Double>)e ).getKey() + ": " + ((Map.Entry<String, Double>)e).getValue());
 		}
 		return null;
 	}

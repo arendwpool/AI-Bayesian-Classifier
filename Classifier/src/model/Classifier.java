@@ -1,6 +1,9 @@
 package model;
 
+import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.io.PrintWriter;
+import java.io.UnsupportedEncodingException;
 import java.util.ArrayList;
 import java.util.HashMap;
 
@@ -15,10 +18,10 @@ public class Classifier {
 		DocumentClass class1 = new DocumentClass("F");
 		DocumentClass class2 = new DocumentClass("M");
 		DocumentClass[] classes = {class1, class2};
-		String path = "txt\\blogs\\F\\F-test1.txt";
+		String path = "txt\\blogs\\test\\F\\F-test1.txt";
 		ArrayList<String> words = DocumentUtils.readDocument(path);
 		FilteredDocument d = DocumentUtils.toFilteredDocument(words, path);
-		TrainMultinomialNaiveBayes(classes, DocumentUtils.loadDocuments("txt/blogs/Train"));
+		TrainMultinomialNaiveBayes(classes, DocumentUtils.loadDocuments("txt/blogs/test"));
 		System.out.println(ApplyMultinomialNaiveBayes(d));
 		
 	}
@@ -45,10 +48,14 @@ public class Classifier {
 		writeToDoc();
 	}
 
-	private static void writeToDoc() {
-		PrintWriter writer = new PrintWriter("the-file-name.txt", "UTF-8");
-	    writer.println("The first line");
-	    writer.println("The second line");
+	private static void writeToDoc() throws FileNotFoundException, UnsupportedEncodingException {
+		PrintWriter writer = new PrintWriter("probs.txt", "UTF-8");
+		for (HashMap<DocumentClass, String> c : probability.keySet()) {
+			for (DocumentClass c1 : c.keySet()) {
+				writer.write(c.get(c1) + " : " + c1.getName() + " : " + probability.get(c)+"\n");
+			}
+		}
+	    writer.println();
 	    writer.close();
 		
 	}
