@@ -2,6 +2,7 @@ package model;
 
 import java.io.BufferedReader;
 import java.io.File;
+import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
 import java.nio.file.Files;
@@ -9,8 +10,11 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Map;
+import java.util.Set;
 import java.util.stream.Stream;
 
 
@@ -323,11 +327,7 @@ public class DocumentUtils {
 	 */
 	public static ArrayList<String> extractVocabulary(ArrayList<String> filepaths) {
 		ArrayList<String> allWords = new ArrayList<String>();
-		int i = 0;
-		int i2 = filepaths.size();
 		for (String filepath : filepaths) {
-			i++;
-			System.out.println((i*100)/i2 + "%");
 			try {
 			ArrayList<String> words = readDocument(filepath);
 			allWords.addAll(words);
@@ -352,6 +352,60 @@ public class DocumentUtils {
 		return new FilteredDocument(words, path);
 	}
 	
+	public static void main(String[] args) throws IOException {
+		DocumentClass a = new DocumentClass("F");
+		DocumentClass b = new DocumentClass("M");
+		ArrayList<DocumentClass> c = new ArrayList<DocumentClass>();
+		c.add(b);
+		c.add(a);
+		orderByChiSquare("txt/blogs/train", c);
+	}
+	
+	public static Set<String> orderByChiSquare(String parentfolder, ArrayList<DocumentClass> c) throws IOException {
+		ArrayList<String> allwords = extractVocabulary(loadDocuments(parentfolder));
+		Set<String> words = new HashSet<String>(allwords);
+		HashMap<String, Double> chis = new HashMap<String, Double>();
+		int i = 0;
+		for(String word : words) {
+			i++;
+			System.out.println((double)(i*100)/words.size());
+			double chi = chiSquare(word, c, parentfolder);
+			chis.put(word, chi);
+		}
+		return null;
+	}
+	
+	public static Set<String> order(HashMap<String, Double> chis, int trim) {
+		Object[] a = chis.entrySet().toArray();
+		Arrays.sort(a, new Comparator() {
+			public int compare(Object o1, Object o2) {
+				return ((Map.Entry<String, Double>) o2).getValue().compareTo(((Map.Entry<String, Double>) o1).getValue());
+			}
+		});
+		for (Object e : a) {
+			System.out.println(((Map.Entry<String, Double>)e ).getKey() + ": " + ((Map.Entry<String, Double>)e).getValue());
+		}
+		return null;
+	}
+	
+	public static boolean containReadDocument(String path, String wordToFind) throws IOException {
+		document = new File(path);
+		documentReader = new FileReader(document);
+		bf = new BufferedReader(documentReader);
+		String line;
+		while((line = bf.readLine()) != null) {
+			String[] split = line.split(" ");
+			if (Arrays.asList(split).contains(wordToFind)){
+				bf.close();
+				documentReader.close();
+				return true;
+			}
+		}
+		bf.close();
+		documentReader.close();
+		return false;
+	}
+	
 	public static double chiSquare(String w, ArrayList<DocumentClass> c, String ParentFolder) throws IOException{
 		HashMap<DocumentClass, Integer> M = new HashMap<DocumentClass, Integer>();
 		int N = 0;
@@ -359,13 +413,12 @@ public class DocumentUtils {
 		int W1 = 0;
 		int W2 = 0;
 		for(DocumentClass clas : c){
-			ArrayList<String> bestanden = loadDocuments(ParentFolder+clas.getName());
+			ArrayList<String> bestanden = loadDocuments(ParentFolder+"\\"+clas.getName());
 			N += bestanden.size();
 			int counter = 0;
 			for(String path: bestanden){
-				ArrayList<String> woorden = readDocument(path);
-				if(Arrays.asList(woorden).contains(w)){
-					counter += 1;
+				if(containReadDocument(path, w) == true) {
+					counter++;
 				}
 			}
 			M.put(clas, counter);
@@ -380,22 +433,21 @@ public class DocumentUtils {
 			Integer val = M.get(a);
 			double boven = 0;
 			double exp = 0;
-			exp = expectedValue(W1,(loadDocuments(ParentFolder+a.getName())).size(),N);
+			exp = expectedValue(W1,(loadDocuments(ParentFolder+"\\"+a.getName())).size(),N);
 			boven = (val-exp);
+			if(exp != 0 && boven != 0)
 			X2 += (boven*boven)/exp;
 			double exp2 = 0;
 			double boven2 = 0;
-			exp2 = expectedValue(W2, (loadDocuments(ParentFolder+a.getName())).size(),N);
-			boven2 = ( (loadDocuments(ParentFolder+a.getName())).size()- val -exp2);
+			exp2 = expectedValue(W2, (loadDocuments(ParentFolder+"\\"+a.getName())).size(),N);
+			boven2 = ( (loadDocuments(ParentFolder+"\\"+a.getName())).size()- val -exp2);
 			X2 += (boven2*boven2)/exp2;
 		}
-		
 		return X2;
 	}
 	
 	public static double expectedValue(int W, int C, int N){
-		double result = (W * C)/ N;
-		return result;
+		return (double) (W * C)/ N;
 	}
 	
 	public static boolean wordChecker(String bestand, String woord){

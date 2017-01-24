@@ -75,13 +75,12 @@ public class TestAll {
 	public void extractVocabularyTest() throws IOException{
 		ArrayList<String> paths = DocumentUtils.loadDocuments("txt/blogs");
 		ArrayList<String> allwords = DocumentUtils.extractVocabulary(paths);
-		for (String word : allwords)
-		System.out.println(word);
+		System.out.println("Er zijn " + allwords.size() + " woorden");
 	}
 	
 	@Test
 	public void createFilteredDocumentsTest() throws IOException{
-		ArrayList<String> paths = DocumentUtils.loadDocuments("txt/blogs/F");
+		ArrayList<String> paths = DocumentUtils.loadDocuments("txt/blogs/train");
 		ArrayList<FilteredDocument> docs = DocumentUtils.createFilteredDocuments(paths);
 		for(FilteredDocument d : docs) {
 			System.out.println(d.getPath() + ": " + d.getWords().size() + " words");
@@ -89,14 +88,15 @@ public class TestAll {
 	}
 	
 	@Test
-	public void chiSquareTestTest(){
+	public void chiSquareTestTest() throws IOException{
 		String w = "bought";
 		ArrayList<DocumentClass> c = new ArrayList<DocumentClass>();
 		DocumentClass c1 = new DocumentClass("F");
 		DocumentClass c2 = new DocumentClass("M");
 		c.add(c1);
 		c.add(c2);
-		String parentfolder = "txt/blog";
+		String parentfolder = "txt/blogs/train";
+		System.out.println(DocumentUtils.chiSquare(w, c, parentfolder));
 	}
 
 }
