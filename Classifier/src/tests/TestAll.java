@@ -87,5 +87,16 @@ public class TestAll {
 			System.out.println(d.getPath() + ": " + d.getWords().size() + " words");
 		}
 	}
+	
+	@Test
+	public void chiSquareTestTest(){
+		String w = "bought";
+		ArrayList<DocumentClass> c = new ArrayList<DocumentClass>();
+		DocumentClass c1 = new DocumentClass("F");
+		DocumentClass c2 = new DocumentClass("M");
+		c.add(c1);
+		c.add(c2);
+		String parentfolder = "txt/blog";
+	}
 
 }
