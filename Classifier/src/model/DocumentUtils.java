@@ -211,7 +211,7 @@ public class DocumentUtils {
 
 	public static ArrayList<String> FilterSplitText(String totalText) throws IOException {
 		ArrayList<String> result = new ArrayList<String>();
-		totalText = totalText.replaceAll("[,.\\\\/\\[\\]\".,'{};:<>?!@#$%^&()*\\-=+_`€¤]", "");
+		totalText = totalText.replaceAll("[,.\\\\/\\[\\]\".,'{};:<>0-9?!@#$%^&()*\\-=+_`€¤]", "");
 		String lowercased = totalText.toLowerCase();
 		lowercased.trim();
 		String[] words = lowercased.split(" ");
@@ -338,6 +338,15 @@ public class DocumentUtils {
 		return allWords;
 	}
 
+	public static ArrayList<FilteredDocument> createFilteredDocuments(ArrayList<String> paths) throws IOException {
+		ArrayList<FilteredDocument> docs = new ArrayList<FilteredDocument>();
+		for(String path : paths) {
+			ArrayList<String> words = readDocument(path);
+			FilteredDocument doc = toFilteredDocument(words, path);
+			docs.add(doc);
+		}
+		return docs;
+	}
 	
 	public static FilteredDocument toFilteredDocument(ArrayList<String> words, String path) {
 		return new FilteredDocument(words, path);

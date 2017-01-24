@@ -2,7 +2,11 @@ package tests;
 
 import static org.junit.Assert.*;
 
+import java.io.BufferedWriter;
+import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.OutputStreamWriter;
+import java.io.Writer;
 import java.util.ArrayList;
 import java.util.Arrays;
 
@@ -47,6 +51,45 @@ public class TestAll {
 		DocumentClass c2 = new DocumentClass("M");
 		ArrayList<String> d = DocumentUtils.loadDocuments("txt/blogs");
 		assertEquals(325, DocumentUtils.countDocsInClass(d, c));
+	}
+	
+	@Test
+	public void countTokensOfTermTest() {
+		ArrayList<String> words = new ArrayList<String>();
+		words.add("yesterday");
+		words.add("friends");
+		words.add("went");
+		words.add("home");
+		words.add("yesterday");
+		words.add("friends");
+		words.add("went");
+		words.add("home");
+		words.add("yesterday");
+		words.add("friends");
+		words.add("went");
+		words.add("home");
+		words.add("home");
+		words.add("home");
+		words.add("home");
+		words.add("home");
+		assertEquals(7, DocumentUtils.countTokensOfTerm(words, "home"));
+	}
+	
+	@Test
+	public void extractVocabularyTest() throws IOException{
+		ArrayList<String> paths = DocumentUtils.loadDocuments("txt/blogs");
+		ArrayList<String> allwords = DocumentUtils.extractVocabulary(paths);
+		for (String word : allwords)
+		System.out.println(word);
+	}
+	
+	@Test
+	public void createFilteredDocumentsTest() throws IOException{
+		ArrayList<String> paths = DocumentUtils.loadDocuments("txt/blogs/F");
+		ArrayList<FilteredDocument> docs = DocumentUtils.createFilteredDocuments(paths);
+		for(FilteredDocument d : docs) {
+			System.out.println(d.getPath() + ": " + d.getWords().size() + " words");
+		}
 	}
 
 }
