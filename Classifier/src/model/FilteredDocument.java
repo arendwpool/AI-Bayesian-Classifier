@@ -6,6 +6,7 @@ public class FilteredDocument {
 	
 	public FilteredDocument (ArrayList<String> words, String path) {
 		setWords(words);
+		setPath(path);
 	}
 	private ArrayList<String> wordsInDocument = new ArrayList<String>();
 	private DocumentClass documentClass;

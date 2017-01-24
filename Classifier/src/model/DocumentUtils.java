@@ -211,7 +211,7 @@ public class DocumentUtils {
 
 	public static ArrayList<String> FilterSplitText(String totalText) throws IOException {
 		ArrayList<String> result = new ArrayList<String>();
-		totalText = totalText.replaceAll("[,.\\\\/\\[\\]\".,'{};:<>?!@#$%^&()\\-=+_`€¤]", "");
+		totalText = totalText.replaceAll("[,.\\\\/\\[\\]\".,'{};:<>?!@#$%^&()*\\-=+_`€¤]", "");
 		String lowercased = totalText.toLowerCase();
 		lowercased.trim();
 		String[] words = lowercased.split(" ");
@@ -229,14 +229,9 @@ public class DocumentUtils {
         return result;
 	}
 	
-	public static void main(String[] args) throws IOException {
-		String filepath = "txt/blogs";
-		concatenateAllTextsOfDocsInClass(loadDocuments(filepath), new DocumentClass());
-	}
-	
 	public static boolean classChecker(String s, DocumentClass ic){
 			String[] deelpath = s.split("/");
-			return (deelpath[deelpath.length -1].equals(ic));
+			return (deelpath[deelpath.length -1].equals(ic.getName()));
 	}
 	
 	/**
