@@ -34,11 +34,19 @@ public class TestAll {
 		words.add("friends");
 		words.add("went");
 		words.add("home");
-		FilteredDocument d = new FilteredDocument(words, "txt/blogs/F");
-		FilteredDocument d2 = new FilteredDocument(words, "txt/blogs/M");
+		FilteredDocument d = new FilteredDocument(words, "txt/blogs/F/doc.txt");
+		FilteredDocument d2 = new FilteredDocument(words, "txt/blogs/M/doc.txt");
 		assertFalse(DocumentUtils.classChecker(d2.getPath(), c));
 		assertTrue(DocumentUtils.classChecker(d.getPath(), c));
 		
+	}
+	
+	@Test
+	public void countDocsInClassTest() throws IOException {
+		DocumentClass c = new DocumentClass("F");
+		DocumentClass c2 = new DocumentClass("M");
+		ArrayList<String> d = DocumentUtils.loadDocuments("txt/blogs");
+		assertEquals(325, DocumentUtils.countDocsInClass(d, c));
 	}
 
 }

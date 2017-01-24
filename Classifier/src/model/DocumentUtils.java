@@ -230,8 +230,12 @@ public class DocumentUtils {
 	}
 	
 	public static boolean classChecker(String s, DocumentClass ic){
-			String[] deelpath = s.split("/");
-			return (deelpath[deelpath.length -1].equals(ic.getName()));
+		String[] deelpath = null;
+		if (s.contains("/"))
+			deelpath = s.split("/");
+		else if (s.contains("\\"))
+			deelpath = s.split("\\\\");
+		return (deelpath[deelpath.length -2].equals(ic.getName()));
 	}
 	
 	/**
@@ -244,7 +248,7 @@ public class DocumentUtils {
 	public static int countDocsInClass(ArrayList<String> d, DocumentClass ic) {
 		int counter = 0;
 		for(String path: d){
-			if(classChecker(path, ic)){
+			if(classChecker(path, ic) == true){
 			counter += 1;	
 			}
 		}
