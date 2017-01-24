@@ -302,6 +302,21 @@ public class DocumentUtils {
 	}
 	
 	/**
+	 * Laad alle docs in filepath Arend
+	 * @return 
+	 * @throws IOException 
+	 */
+	public static ArrayList<String> loadDocuments(String parentfolder, DocumentClass ic) throws IOException {
+		ArrayList<String> filepaths = loadDocuments(parentfolder);
+		ArrayList<String> classFilePaths = new ArrayList<String>();
+		for (String path : filepaths) {
+			if (classChecker(path, ic)) {
+				classFilePaths.add(path);
+			}
+		}
+		return classFilePaths;
+	}
+	/**
 	 * Returnt alle woorden in een gefilterde zak met woorden
 	 * @param filePaths
 	 * @throws IOException 
