@@ -1,14 +1,11 @@
 package tests;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
 
-import java.io.BufferedWriter;
-import java.io.FileOutputStream;
 import java.io.IOException;
-import java.io.OutputStreamWriter;
-import java.io.Writer;
 import java.util.ArrayList;
-import java.util.Arrays;
 
 import org.junit.Test;
 
@@ -48,7 +45,6 @@ public class TestAll {
 	@Test
 	public void countDocsInClassTest() throws IOException {
 		DocumentClass c = new DocumentClass("F");
-		DocumentClass c2 = new DocumentClass("M");
 		ArrayList<String> d = DocumentUtils.loadDocuments("txt/blogs");
 		assertEquals(325, DocumentUtils.countDocsInClass(d, c));
 	}

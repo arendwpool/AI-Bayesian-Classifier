@@ -9,7 +9,6 @@ public class FilteredDocument {
 		setPath(path);
 	}
 	private ArrayList<String> wordsInDocument = new ArrayList<String>();
-	private DocumentClass documentClass;
 	private String path;
 
 	public String getPath() {
