@@ -342,16 +342,16 @@ public class DocumentUtils {
 	}
 	
 	public static void main(String[] args) throws IOException {
-		ArrayList<FilteredDocument> docs = createFilteredDocuments(loadDocuments("txt/blogs"));
+		ArrayList<FilteredDocument> docs = createFilteredDocuments(loadDocuments("txt/blogs/test"));
 		DocumentClass c1 = new DocumentClass("F");
 		DocumentClass c2 = new DocumentClass("M");
 		ArrayList<DocumentClass> c = new ArrayList<DocumentClass>();
 		c.add(c2);
 		c.add(c1);
-		orderByChiSquare(docs, c);
+		orderByChiSquare(docs, c, 100);
 	}
 	
-	public static Set<String> orderByChiSquare(ArrayList<FilteredDocument> docs, ArrayList<DocumentClass> c) throws IOException {
+	public static Set<String> orderByChiSquare(ArrayList<FilteredDocument> docs, ArrayList<DocumentClass> c, Integer trimlevel) throws IOException {
 		ArrayList<String> allwords = extractVocabulary(docs);
 		Set<String> words = new HashSet<String>(allwords);
 		HashMap<String, Double> chis = new HashMap<String, Double>();
@@ -362,7 +362,29 @@ public class DocumentUtils {
 			double chi = chiSquare(word, c, docs);
 			chis.put(word, chi);
 		}
+		orderHashmap(chis, 10);
 		return null;
+	}
+	
+	public static void orderHashmap(HashMap<String, Double> chis, Integer trim){
+		Object[] a = chis.entrySet().toArray();
+		Arrays.sort(a, new Comparator() {
+		    public int compare(Object o1, Object o2) {
+		        return ((Map.Entry<String, Double>) o2).getValue()
+		                   .compareTo(((Map.Entry<String, Double>) o1).getValue());
+		    }
+		});
+		HashMap<String, Double> orderedchis = new HashMap<String, Double>();
+		int i = 0;
+		for (Object e : a) {
+			if(i < trim){
+				i += 1;
+				System.out.println(((Map.Entry<String, Integer>) e).getKey() + " : "
+			            + ((Map.Entry<String, Integer>) e).getValue());
+				//orderedchis.put(((Map.Entry<String, Double>) e).getKey(), ((Map.Entry<String, Double>) e).getValue());
+		    }
+		}
+		
 	}
 	
 	public static boolean containReadDocument(String path, String wordToFind) throws IOException {
