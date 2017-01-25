@@ -8,6 +8,7 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.text.Normalizer;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Comparator;
@@ -198,6 +199,33 @@ public class DocumentUtils {
             "yourself\n" +
             "yourselves");
 	
+	public static ArrayList<String> finalVocabulary(ArrayList<String> filepaths, int trim) throws IOException {
+		ArrayList<FilteredDocument> docs = createFilteredDocuments(filepaths);
+		ArrayList<DocumentClass> c = new ArrayList<DocumentClass>();
+		int i = 0;
+		for (FilteredDocument d : docs) {
+			i++;
+			System.out.println("load docs: " + (double)(i*100)/docs.size());
+			if (c.size() == 0) {
+				c.add(d.getDocumentlass());
+			} else {
+				boolean exists = false;
+				for (DocumentClass dc : c) {
+					if (dc.getName().equals(d.getDocumentlass().getName())) {
+						exists = true;
+					}
+				}
+				if (exists == false ){
+					c.add(d.getDocumentlass());
+				}
+			}
+		}
+		ArrayList<String> vocab = orderByChiSquare(docs, c, trim);
+		for(String v : vocab) {
+			//System.out.println(v);
+		}
+		return vocab;
+	}
 	
 	public static ArrayList<String> readDocument(String filePath) throws IOException {
 		document = new File(filePath);
@@ -215,9 +243,10 @@ public class DocumentUtils {
 
 	public static ArrayList<String> FilterSplitText(String totalText) throws IOException {
 		ArrayList<String> result = new ArrayList<String>();
-		totalText = totalText.replaceAll("[,.\\\\/\\[\\]\".,'{};:<>0-9?!@#$%^&()*\\-=+_`€¤]", "");
+		totalText = totalText.replaceAll("[,.\\\\/\\[\\]|\".,'{};:<>0-9?!@#$%^&()*\\-=+_`€¤]", " ");
+		totalText = Normalizer.normalize(totalText, Normalizer.Form.NFD).replaceAll("[^\\p{ASCII}]", "");
 		String lowercased = totalText.toLowerCase();
-		lowercased.trim();
+		lowercased = lowercased.trim();
 		String[] words = lowercased.split(" ");
 		String[] stopwoo = stopwords.split("\n"); //IMPROVEME
 		for (String word : words) {
@@ -342,32 +371,27 @@ public class DocumentUtils {
 	}
 	
 	public static void main(String[] args) throws IOException {
-		ArrayList<FilteredDocument> docs = createFilteredDocuments(loadDocuments("txt/blogs/test"));
-		DocumentClass c1 = new DocumentClass("F");
-		DocumentClass c2 = new DocumentClass("M");
-		ArrayList<DocumentClass> c = new ArrayList<DocumentClass>();
-		c.add(c2);
-		c.add(c1);
-		orderByChiSquare(docs, c, 100);
+		finalVocabulary(loadDocuments("txt/blogs/train"), 100);
+		
 	}
 	
-	public static HashMap<String, Double> orderByChiSquare(ArrayList<FilteredDocument> docs, ArrayList<DocumentClass> c, Integer trimlevel) throws IOException {
+	public static ArrayList<String> orderByChiSquare(ArrayList<FilteredDocument> docs, ArrayList<DocumentClass> c, Integer trimlevel) throws IOException {
 		ArrayList<String> allwords = extractVocabulary(docs);
 		Set<String> words = new HashSet<String>(allwords);
 		HashMap<String, Double> chis = new HashMap<String, Double>();
 		int i = 0;
 		for(String word : words) {
 			i++;
-			System.out.println((double)(i*100)/words.size());
+			System.out.println("chi: "+(double) (i*100)/words.size());
 			double chi = chiSquare(word, c, docs);
 			chis.put(word, chi);
 		}
-		HashMap<String, Double> result = orderHashmap(chis, trimlevel);
+		ArrayList<String> result = orderHashmap(chis, trimlevel);
 		return result;
 	}
 	
-	public static HashMap<String, Double> orderHashmap(HashMap<String, Double> chis, Integer trim){
-		HashMap<String, Double> orderd = new HashMap<String, Double>();
+	public static ArrayList<String> orderHashmap(HashMap<String, Double> chis, Integer trim){
+		ArrayList<String> orderd = new ArrayList<String>();
 		Object[] a = chis.entrySet().toArray();
 		Arrays.sort(a, new Comparator() {
 		    public int compare(Object o1, Object o2) {
@@ -375,34 +399,16 @@ public class DocumentUtils {
 		                   .compareTo(((Map.Entry<String, Double>) o1).getValue());
 		    }
 		});
-		HashMap<String, Double> orderedchis = new HashMap<String, Double>();
 		int i = 0;
 		for (Object e : a) {
 			if(i < trim){
 				i += 1;
-				orderd.put(((Map.Entry<String, Double>) e).getKey(), ((Map.Entry<String, Double>) e).getValue());
+				orderd.add(((Map.Entry<String, Double>) e).getKey());
 		    }
 		}
 		return orderd;
 	}
-	
-	public static boolean containReadDocument(String path, String wordToFind) throws IOException {
-		document = new File(path);
-		documentReader = new FileReader(document);
-		bf = new BufferedReader(documentReader);
-		String line;
-		while((line = bf.readLine()) != null) {
-			String[] split = line.split(" ");
-			if (Arrays.asList(split).contains(wordToFind)){
-				bf.close();
-				documentReader.close();
-				return true;
-			}
-		}
-		bf.close();
-		documentReader.close();
-		return false;
-	}
+
 	
 	public static int countAllWords(ArrayList<FilteredDocument> d) {
 		int i = 0;
@@ -410,6 +416,21 @@ public class DocumentUtils {
 			i += doc.getWords().size();
 		}
 		return i;
+	}
+	
+	public static int countOccurancesInClass (String word, ArrayList<FilteredDocument> d, DocumentClass c) {
+		int W1 = 0;
+		for (FilteredDocument fd : d) {
+			if (fd.getDocumentlass().getName().equals(c.getName())){
+			for (String w2 : fd.getWords()) {
+				if (w2.equals(word)) {
+					W1++;
+					break;
+				}
+			}
+			}
+		}
+		return W1;
 	}
 	
 	public static double chiSquare(String w, ArrayList<DocumentClass> c, ArrayList<FilteredDocument> d) throws IOException{
@@ -458,9 +479,5 @@ public class DocumentUtils {
 	
 	public static double expectedValue(int W, int C, int N){
 		return (double) (W * C)/ N;
-	}
-	
-	public static boolean wordChecker(String bestand, String woord){
-		return(bestand.contains(woord));
 	}
 }
