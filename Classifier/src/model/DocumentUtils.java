@@ -351,7 +351,7 @@ public class DocumentUtils {
 		orderByChiSquare(docs, c, 100);
 	}
 	
-	public static Set<String> orderByChiSquare(ArrayList<FilteredDocument> docs, ArrayList<DocumentClass> c, Integer trimlevel) throws IOException {
+	public static HashMap<String, Double> orderByChiSquare(ArrayList<FilteredDocument> docs, ArrayList<DocumentClass> c, Integer trimlevel) throws IOException {
 		ArrayList<String> allwords = extractVocabulary(docs);
 		Set<String> words = new HashSet<String>(allwords);
 		HashMap<String, Double> chis = new HashMap<String, Double>();
@@ -362,11 +362,12 @@ public class DocumentUtils {
 			double chi = chiSquare(word, c, docs);
 			chis.put(word, chi);
 		}
-		orderHashmap(chis, 10);
-		return null;
+		HashMap<String, Double> result = orderHashmap(chis, trimlevel);
+		return result;
 	}
 	
-	public static void orderHashmap(HashMap<String, Double> chis, Integer trim){
+	public static HashMap<String, Double> orderHashmap(HashMap<String, Double> chis, Integer trim){
+		HashMap<String, Double> orderd = new HashMap<String, Double>();
 		Object[] a = chis.entrySet().toArray();
 		Arrays.sort(a, new Comparator() {
 		    public int compare(Object o1, Object o2) {
@@ -379,12 +380,10 @@ public class DocumentUtils {
 		for (Object e : a) {
 			if(i < trim){
 				i += 1;
-				System.out.println(((Map.Entry<String, Integer>) e).getKey() + " : "
-			            + ((Map.Entry<String, Integer>) e).getValue());
-				//orderedchis.put(((Map.Entry<String, Double>) e).getKey(), ((Map.Entry<String, Double>) e).getValue());
+				orderd.put(((Map.Entry<String, Double>) e).getKey(), ((Map.Entry<String, Double>) e).getValue());
 		    }
 		}
-		
+		return orderd;
 	}
 	
 	public static boolean containReadDocument(String path, String wordToFind) throws IOException {
