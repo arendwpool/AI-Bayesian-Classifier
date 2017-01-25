@@ -20,24 +20,25 @@ public class Classifier {
 		DocumentClass[] classes = {class1, class2};
 		String path = "txt\\blogs\\test\\F\\F-test1.txt";
 		ArrayList<String> words = DocumentUtils.readDocument(path);
-		FilteredDocument d = DocumentUtils.toFilteredDocument(words, path);
+		FilteredDocument d = DocumentUtils.toFilteredDocument(words, path, class1);
 		TrainMultinomialNaiveBayes(classes, DocumentUtils.loadDocuments("txt/blogs/test"));
 		System.out.println(ApplyMultinomialNaiveBayes(d));
 		
 	}
 	
 	public static void TrainMultinomialNaiveBayes(DocumentClass[] c, ArrayList<String> d) throws IOException {
-		allWords = DocumentUtils.extractVocabulary(d);
+		ArrayList<FilteredDocument> docs = DocumentUtils.createFilteredDocuments(d);
+		allWords = DocumentUtils.extractVocabulary(docs);
 		numberOfDocuments = d.size();
 		int i = 0;
 		for(DocumentClass ic : c) {
-			int n = DocumentUtils.countDocsInClass(d, ic);
+			int n = DocumentUtils.countDocsInClass(docs, ic);
 			double classPrior = n/numberOfDocuments;
 			classes.put(ic,  classPrior);
-			ArrayList<String> allWordsInClass = DocumentUtils.concatenateAllTextsOfDocsInClass(d, ic);
+			ArrayList<String> allWordsInClass = DocumentUtils.concatenateAllTextsOfDocsInClass(docs, ic);
 			for(String word : allWords) {
 				i++;
-				System.out.println((double)(i*100)/allWords.size());
+				System.out.println((double)(i*50)/allWords.size());
 				int tokensOfTerm = DocumentUtils.countTokensOfTerm(allWordsInClass, word);
 				HashMap<DocumentClass, String> classTerm = new HashMap<DocumentClass, String>();
 				classTerm.put(ic, word);
@@ -70,11 +71,14 @@ public class Classifier {
 		ArrayList<String> wordsInDocument = DocumentUtils.readDocument(d.getPath());
 		double score = 0;
 		for (DocumentClass ic : classes.keySet()) {
-			score = Math.log(classes.get(ic));
+			score = classes.get(ic);
+			System.out.println(score);
 			for (String word : wordsInDocument) {
 				HashMap<DocumentClass, String> wordInDoc = new HashMap<DocumentClass, String>();
 				wordInDoc.put(ic, word);
-				score += Math.log(probability.get(wordInDoc));
+				score += probability.get(wordInDoc);
+
+				System.out.println(score);
 			}
 		}
 		return score;

@@ -233,8 +233,9 @@ public class DocumentUtils {
         return result;
 	}
 	
-	public static boolean classChecker(String s, DocumentClass ic){
+	public static boolean classChecker(FilteredDocument doc, DocumentClass ic){
 		String[] deelpath = null;
+		String s = doc.getPath();
 		if (s.contains("/"))
 			deelpath = s.split("/");
 		else if (s.contains("\\"))
@@ -249,11 +250,11 @@ public class DocumentUtils {
 	 * @return
 	 */
 	// tellen hoevaak class ic voor komt in alle paths d, door te kijken naar einde van path
-	public static int countDocsInClass(ArrayList<String> d, DocumentClass ic) {
+	public static int countDocsInClass(ArrayList<FilteredDocument> d, DocumentClass ic) {
 		int counter = 0;
-		for(String path: d){
-			if(classChecker(path, ic) == true){
-			counter += 1;	
+		for(FilteredDocument doc: d){
+			if(classChecker(doc, ic) == true){
+				counter += 1;	
 			}
 		}
 		return counter;
@@ -262,11 +263,11 @@ public class DocumentUtils {
 	 * Arend
 	 * @throws IOException 
 	 */
-	public static ArrayList<String> concatenateAllTextsOfDocsInClass(ArrayList<String> allpaths, DocumentClass ic) throws IOException {
-		ArrayList<String> docsInClass = new ArrayList<String>();
-		for(String path : allpaths) {
-			if (classChecker(path, ic)) {
-				docsInClass.add(path);
+	public static ArrayList<String> concatenateAllTextsOfDocsInClass(ArrayList<FilteredDocument> docs, DocumentClass ic) throws IOException {
+		ArrayList<FilteredDocument> docsInClass = new ArrayList<FilteredDocument>();
+		for(FilteredDocument doc : docs) {
+			if (classChecker(doc, ic)) {
+				docsInClass.add(doc);
 			}
 		}
 		return extractVocabulary(docsInClass);
@@ -306,34 +307,15 @@ public class DocumentUtils {
 	}
 	
 	/**
-	 * Laad alle docs in filepath Arend
-	 * @return 
-	 * @throws IOException 
-	 */
-	public static ArrayList<String> loadDocuments(String parentfolder, DocumentClass ic) throws IOException {
-		ArrayList<String> filepaths = loadDocuments(parentfolder);
-		ArrayList<String> classFilePaths = new ArrayList<String>();
-		for (String path : filepaths) {
-			if (classChecker(path, ic)) {
-				classFilePaths.add(path);
-			}
-		}
-		return classFilePaths;
-	}
-	/**
 	 * Returnt alle woorden in een gefilterde zak met woorden
 	 * @param filePaths
 	 * @throws IOException 
 	 */
-	public static ArrayList<String> extractVocabulary(ArrayList<String> filepaths) {
+	public static ArrayList<String> extractVocabulary(ArrayList<FilteredDocument> docs) {
 		ArrayList<String> allWords = new ArrayList<String>();
-		for (String filepath : filepaths) {
-			try {
-			ArrayList<String> words = readDocument(filepath);
+		for (FilteredDocument d : docs) {
+			ArrayList<String> words = d.getWords();
 			allWords.addAll(words);
-			} catch (IOException e) {
-				System.out.println("FOUT");
-			}
 		}
 		return allWords;
 	}
@@ -341,35 +323,43 @@ public class DocumentUtils {
 	public static ArrayList<FilteredDocument> createFilteredDocuments(ArrayList<String> paths) throws IOException {
 		ArrayList<FilteredDocument> docs = new ArrayList<FilteredDocument>();
 		for(String path : paths) {
+			String[] deelpath = null;
+			if (path.contains("/"))
+				deelpath = path.split("/");
+			else if (path.contains("\\"))
+				deelpath = path.split("\\\\");
+			String clas = deelpath[deelpath.length -2];
+			DocumentClass c = new DocumentClass(clas);
 			ArrayList<String> words = readDocument(path);
-			FilteredDocument doc = toFilteredDocument(words, path);
+			FilteredDocument doc = toFilteredDocument(words, path,c);
 			docs.add(doc);
 		}
 		return docs;
 	}
 	
-	public static FilteredDocument toFilteredDocument(ArrayList<String> words, String path) {
-		return new FilteredDocument(words, path);
+	public static FilteredDocument toFilteredDocument(ArrayList<String> words, String path, DocumentClass c) {
+		return new FilteredDocument(words, path,c);
 	}
 	
 	public static void main(String[] args) throws IOException {
-		DocumentClass a = new DocumentClass("F");
-		DocumentClass b = new DocumentClass("M");
+		ArrayList<FilteredDocument> docs = createFilteredDocuments(loadDocuments("txt/blogs"));
+		DocumentClass c1 = new DocumentClass("F");
+		DocumentClass c2 = new DocumentClass("M");
 		ArrayList<DocumentClass> c = new ArrayList<DocumentClass>();
-		c.add(b);
-		c.add(a);
-		orderByChiSquare("txt/blogs/test", c);
+		c.add(c2);
+		c.add(c1);
+		orderByChiSquare(docs, c);
 	}
 	
-	public static Set<String> orderByChiSquare(String parentfolder, ArrayList<DocumentClass> c) throws IOException {
-		ArrayList<String> allwords = extractVocabulary(loadDocuments(parentfolder));
+	public static Set<String> orderByChiSquare(ArrayList<FilteredDocument> docs, ArrayList<DocumentClass> c) throws IOException {
+		ArrayList<String> allwords = extractVocabulary(docs);
 		Set<String> words = new HashSet<String>(allwords);
 		HashMap<String, Double> chis = new HashMap<String, Double>();
 		int i = 0;
 		for(String word : words) {
 			i++;
 			System.out.println((double)(i*100)/words.size());
-			double chi = chiSquare(word, c, parentfolder);
+			double chi = chiSquare(word, c, docs);
 			chis.put(word, chi);
 		}
 		return null;
@@ -393,43 +383,55 @@ public class DocumentUtils {
 		return false;
 	}
 	
-	public static double chiSquare(String w, ArrayList<DocumentClass> c, String ParentFolder) throws IOException{
-		HashMap<DocumentClass, Integer> M = new HashMap<DocumentClass, Integer>();
-		int N = 0;
+	public static int countAllWords(ArrayList<FilteredDocument> d) {
+		int i = 0;
+		for (FilteredDocument doc : d) {
+			i += doc.getWords().size();
+		}
+		return i;
+	}
+	
+	public static double chiSquare(String w, ArrayList<DocumentClass> c, ArrayList<FilteredDocument> d) throws IOException{
+		HashMap<DocumentClass, Integer> M1 = new HashMap<DocumentClass, Integer>();
+		HashMap<DocumentClass, Integer> M2 = new HashMap<DocumentClass, Integer>();
+		int N = d.size();
+		int totalW1 = 0;
+		int totalW2 = 0;
 		double X2 = 0;
-		int W1 = 0;
-		int W2 = 0;
-		for(DocumentClass clas : c){
-			ArrayList<String> bestanden = loadDocuments(ParentFolder+"\\"+clas.getName());
-			N += bestanden.size();
-			int counter = 0;
-			for(String path: bestanden){
-				if(containReadDocument(path, w) == true) {
-					counter++;
+		for (DocumentClass dc : c) {
+			int W1 = 0;
+			int C = 0;
+			for (FilteredDocument fd : d) {
+				if (dc.getName().equals(fd.getDocumentlass().getName())) {
+					C++;
+				for (String w2 : fd.getWords()) {
+					if (w2.equals(w)) {
+						W1++;
+						break;
+					}
+				}
 				}
 			}
-			M.put(clas, counter);
+			M1.put(dc, W1);
+			M2.put(dc, C);
+			totalW1 += W1;
 		}
-		for ( DocumentClass key : M.keySet()) {
-			Integer val = M.get(key);
-			W1 += val;
+		totalW2 = N - totalW1;
+		for (DocumentClass dc2 : c) {
+			int val = M1.get(dc2); // gelijk aan W1
+			int val2 = M2.get(dc2); // gelijk aan W2
+			double exp = expectedValue(totalW1, val2, N);
+			double teller = (val - exp);
+			double tellerSquared = teller*teller;
+			X2 += tellerSquared / exp; 
+			int val3 = val2 - val;
+			double exp2 = expectedValue(totalW2, val2, N);
+			double teller2 = (val3 - exp2);
+			double teller2Squared = teller2*teller2;
+			X2 += teller2Squared / exp2;
 		}
-		W2= N - W1;
-		for(DocumentClass a: c){
-			Integer val = M.get(a);
-			double boven = 0;
-			double exp = 0;
-			int C = loadDocuments(ParentFolder+"\\"+a.getName()).size();
-			exp = expectedValue(W1,C,N);
-			boven = (val-exp);
-			if(exp != 0 && boven != 0)
-			X2 += (boven*boven)/exp;
-			double exp2 = 0;
-			double boven2 = 0;
-			exp2 = expectedValue(W2, C ,N);
-			boven2 = ( C - val -exp2);
-			X2 += (boven2*boven2)/exp2;
-		}
+		
+		
 		return X2;
 	}
 	
