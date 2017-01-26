@@ -34,6 +34,7 @@ public class Classifier {
 	public static void TrainMultinomialNaiveBayes(DocumentClass[] c, ArrayList<String> d, int trim, GUI gui) throws IOException {
 		ArrayList<FilteredDocument> docs = DocumentUtils.createFilteredDocuments(d);
                 setGUI(gui);
+                long start = System.currentTimeMillis();
 		allWords = DocumentUtils.finalVocabulary(d, trim, gui);
 		numberOfDocuments = docs.size();
 		int i = 0;
@@ -53,6 +54,8 @@ public class Classifier {
 			}
 		}
 		writeToDoc();
+                long end = System.currentTimeMillis();
+                gui.setTrainingReady((double) (end-start));
 	}
 
 	private static void writeToDoc() throws FileNotFoundException, UnsupportedEncodingException {
