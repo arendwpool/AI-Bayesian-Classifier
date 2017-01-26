@@ -17,6 +17,7 @@ import model.Classifier;
 import model.DocumentClass;
 import model.DocumentUtils;
 import model.FilteredDocument;
+import model.InteractiveLearner;
 
 /**
  *
@@ -515,7 +516,7 @@ public class GUI extends javax.swing.JFrame {
         public void run() {
         try {
             
-            DocumentClass[] c = DocumentUtils.getClasses(rootFolder);
+            DocumentClass[] c = DocumentUtils.getClasses(rootFolder, false);
             ArrayList<String> d = DocumentUtils.loadDocuments(rootFolder + "\\train");
             Classifier.TrainMultinomialNaiveBayes(c, d, vocSize, gui);
         } catch (IOException ex) {
@@ -548,7 +549,6 @@ public class GUI extends javax.swing.JFrame {
         jLabel10.setText(chooser.getSelectedFile().getAbsolutePath());
         jLabel20.setText(chooser.getSelectedFile().getAbsolutePath());
         rootFolder = chooser.getSelectedFile().getAbsolutePath();
-        System.out.println(rootFolder);
         
     }//GEN-LAST:event_jButton3ActionPerformed
 
@@ -568,7 +568,7 @@ public class GUI extends javax.swing.JFrame {
                 try {
                     docs = DocumentUtils.createFilteredDocuments(DocumentUtils.loadDocuments(rootFolder+"\\test"));
                     int i = 0;
-                    DocumentClass[] c = DocumentUtils.getClasses(rootFolder) ;
+                    DocumentClass[] c = DocumentUtils.getClasses(rootFolder, false) ;
                     for (FilteredDocument d : docs) {
 			String guessed = Classifier.ApplyMultinomialNaiveBayes(d, c);
 			if (guessed.equals(d.getDocumentlass().getName())) {
@@ -590,9 +590,29 @@ public class GUI extends javax.swing.JFrame {
     private void jButton4ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton4ActionPerformed
         addDocClass = jTextField1.getText();
         addDocCorpus = jTextField2.getText();
-        
+<<<<<<< HEAD
+        GUI gui = this;
+        Runnable runner = new Runnable()
+        {
+            public void run() {
+            	try {
+					InteractiveLearner.learn(addDocPath, DocumentUtils.getClasses(addDocCorpus, true), new DocumentClass(addDocClass), addDocCorpus, gui);
+				} catch (IOException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
+            }
+        };
+        Thread t = new Thread(runner, "Code Executer");
+        t.start();        
+=======
+>>>>>>> parent of 6f4cc7a... Fixt de shit
     }//GEN-LAST:event_jButton4ActionPerformed
 
+    	public void setLearningProgress(int i) {
+            jProgressBar4.setValue(i);
+    	}
+    	
     private void jComboBox2ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jComboBox2ActionPerformed
         int i = jComboBox2.getSelectedIndex();
         switch(i+1) {

@@ -206,7 +206,6 @@ public class DocumentUtils {
 		int i = 0;
 		for (FilteredDocument d : docs) {
 			i++;
-			System.out.println("load docs: " + (double)(i*100)/docs.size());
                         gui.setLoadProgress((i*100)/docs.size());
 			if (c.size() == 0) {
 				c.add(d.getDocumentlass());
@@ -229,7 +228,7 @@ public class DocumentUtils {
 		return vocab;
 	}
 	
-	public static ArrayList<String> readDocument(String filePath) throws IOException {
+	public static ArrayList<String> readDocument(String filePath, boolean iscorpus) throws IOException {
 		document = new File(filePath);
 		documentReader = new FileReader(document);
 		bf = new BufferedReader(documentReader);
@@ -240,7 +239,13 @@ public class DocumentUtils {
 		}
 		bf.close();
 		documentReader.close();
+		if(iscorpus == false)
 		return FilterSplitText(totalText);
+		else{
+			ArrayList<String> kaas = new ArrayList<String>();
+			kaas.add(totalText);
+			return kaas;
+		}
 	}
 
 	public static ArrayList<String> FilterSplitText(String totalText) throws IOException {
@@ -362,7 +367,7 @@ public class DocumentUtils {
 				deelpath = path.split("\\\\");
 			String clas = deelpath[deelpath.length -2];
 			DocumentClass c = new DocumentClass(clas);
-			ArrayList<String> words = readDocument(path);
+			ArrayList<String> words = readDocument(path, false);
 			FilteredDocument doc = toFilteredDocument(words, path,c);
 			docs.add(doc);
 		}
@@ -385,7 +390,6 @@ public class DocumentUtils {
 		int i = 0;
 		for(String word : words) {
 			i++;
-			System.out.println("chi: "+(double) (i*100)/words.size());
                         
                         gui.setChiProgress((i*100)/words.size());
 			double chi = chiSquare(word, c, docs, gui);
@@ -486,9 +490,14 @@ public class DocumentUtils {
 		return (double) (W * C)/ N;
 	}
 	
-	public static DocumentClass[] getClasses(String rootfolder) {
+	public static DocumentClass[] getClasses(String rootfolder, boolean isCorpus) throws IOException {
 		ArrayList<DocumentClass> deelpath = new ArrayList<DocumentClass>();
-		String s = rootfolder + "\\train";
+		String s = "";
+		if (isCorpus == true)
+			s = readDocument(rootfolder + ".txt", true).get(0) + "\\train";
+		else
+			s = rootfolder + "\\train";
+		System.out.println(s);
 		File file = new File(s);
 		String[] names = file.list();
 		for(String name : names)

@@ -156,8 +156,15 @@
                           <EmptySpace max="32767" attributes="0"/>
                           <Group type="103" groupAlignment="1" max="-2" attributes="0">
                               <Component id="jComboBox3" max="32767" attributes="0"/>
+<<<<<<< HEAD
+                              <Group type="103" groupAlignment="0" max="-2" attributes="0">
+                                  <Component id="jComboBox2" max="32767" attributes="0"/>
+                                  <Component id="jButton3" max="32767" attributes="0"/>
+                              </Group>
+=======
                               <Component id="jComboBox2" alignment="0" max="32767" attributes="0"/>
                               <Component id="jButton3" alignment="0" max="32767" attributes="0"/>
+>>>>>>> master
                           </Group>
                           <EmptySpace min="-2" pref="84" max="-2" attributes="0"/>
                       </Group>
