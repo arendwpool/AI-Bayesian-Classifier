@@ -256,6 +256,7 @@ public class DocumentUtils {
 		for (String w :  words) 
 		{
 			if (!Arrays.asList(stopwoo).contains(w)) {
+				if (w.length() > 2)
 				result.add(w);
 			}
 		}
