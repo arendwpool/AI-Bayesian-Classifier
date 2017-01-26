@@ -13,28 +13,23 @@ import view.GUI;
 
 public class Classifier {
 	private static ArrayList<String> filepaths;
-	private static ArrayList<String> allWords = new ArrayList<String>();
+	private static ArrayList<String> allWords;
 	private static int numberOfDocuments;
-	private static HashMap<DocumentClass, Double> classes = new HashMap<DocumentClass, Double>();
-	private static HashMap<HashMap<DocumentClass, String>, Double> probability = new HashMap<HashMap<DocumentClass, String>, Double>();
+	private static HashMap<DocumentClass, Double> classes;
+	private static HashMap<HashMap<DocumentClass, String>, Double> probability;
         private static GUI gui;
-	
-	public static void main(String[] args) throws IOException {
-				
-		DocumentClass class1 = new DocumentClass("Ham");
-		DocumentClass class2 = new DocumentClass("Spam");
-		DocumentClass[] classes = {class1, class2};
-		//TrainMultinomialNaiveBayes(classes, DocumentUtils.loadDocuments("txt/corpus-mails/train"), 300);
-		
-	}
 	
         public static void setGUI(GUI guiTL) {
             gui = guiTL;
         }
 	public static void TrainMultinomialNaiveBayes(DocumentClass[] c, ArrayList<String> d, int trim, GUI gui) throws IOException {
+		allWords  = new ArrayList<String>();
+		classes  = new HashMap<DocumentClass, Double>();
+		probability = new HashMap<HashMap<DocumentClass, String>, Double>();
 		ArrayList<FilteredDocument> docs = DocumentUtils.createFilteredDocuments(d);
-                setGUI(gui);
-                long start = System.currentTimeMillis();
+        String corpus = d.get(1).split("\\\\")[d.get(1).split("\\\\").length-4];
+        setGUI(gui);
+        long start = System.currentTimeMillis();
 		allWords = DocumentUtils.finalVocabulary(d, trim, gui);
 		numberOfDocuments = docs.size();
 		int i = 0;
@@ -47,39 +42,39 @@ public class Classifier {
 				i++;
 				gui.setTrainProgress((i*50)/allWords.size());
 
-				calculate(ic, docs, word);
+				calculate(ic, docs, word, corpus);
 			}
 		}
-		writeToDoc();
+		writeToDoc(corpus);
                 long end = System.currentTimeMillis();
                 gui.setTrainingReady((double) (end-start));
 	}
 	
-	public static void calculate(DocumentClass ic,ArrayList<FilteredDocument> docs, String w ) throws IOException{
-			HashMap<DocumentClass, String> classTerm = new HashMap<DocumentClass, String>();
-			classTerm.put(ic, w);
-			double prob = calcProbability(w, ic, docs);
-			probability.put(classTerm, prob);
-	writeToDoc();
+	public static void calculate(DocumentClass ic,ArrayList<FilteredDocument> docs, String w, String corpus ) throws IOException{
+            HashMap<DocumentClass, String> classTerm = new HashMap<DocumentClass, String>();
+            classTerm.put(ic, w);
+            double prob = calcProbability(w, ic, docs);
+            probability.put(classTerm, prob);
+            writeToDoc(corpus);
 		
 	}
 
-	private static void writeToDoc() throws FileNotFoundException, UnsupportedEncodingException {
-		PrintWriter writer = new PrintWriter("probs.txt", "UTF-8");
-		PrintWriter writer2 = new PrintWriter("prior.txt", "UTF-8");
-		PrintWriter writer3 = new PrintWriter("voc.txt", "UTF-8");
+	private static void writeToDoc(String corpus) throws FileNotFoundException, UnsupportedEncodingException {
+		PrintWriter writer = new PrintWriter(corpus+"probs.txt", "UTF-8");
+		PrintWriter writer2 = new PrintWriter(corpus+"prior.txt", "UTF-8");
+		PrintWriter writer3 = new PrintWriter(corpus+"voc.txt", "UTF-8");
 		for (HashMap<DocumentClass, String> c : probability.keySet()) {
 			for (DocumentClass c1 : c.keySet()) {
-				writer.write(c.get(c1) + " : " + c1.getName() + " : " + probability.get(c)+"\n");
+				writer.write(c.get(c1) + " : " + c1.getName() + " : " + probability.get(c)+System.lineSeparator());
 			}
 		}
 		writer.close();
 		for (DocumentClass c : classes.keySet()) {
-			writer2.write(c.getName() + " : " + classes.get(c)+"\n");
+			writer2.write(c.getName() + " : " + classes.get(c)+System.lineSeparator());
 		}
 		writer2.close();
 		for (String w :  allWords) {
-			writer3.write(w+"\n");
+			writer3.write(w+System.lineSeparator());
 		}
 		writer3.close();
 	    writer.println();
@@ -98,13 +93,14 @@ public class Classifier {
 	}
 	
 	public static String ApplyMultinomialNaiveBayes(FilteredDocument d, DocumentClass[] c) throws IOException {
-		getProbsFromFile();
-		getVocFromFile();
-		getPriorFromFile();
+                String corpus = d.getPath().split("\\\\")[d.getPath().split("\\\\").length-4];
+		HashMap<HashMap<DocumentClass, String>, Double> probs = getProbsFromFile(corpus);
+		ArrayList<String> voc =getVocFromFile(corpus);
+		HashMap<DocumentClass, Double> prior =getPriorFromFile(corpus);
 		ArrayList<String> wordsInDocument = DocumentUtils.readDocument(d.getPath());
 		ArrayList<String> wordsInDocInVoc = new ArrayList<String>();
 		for (String w : wordsInDocument) {
-			for (String w2 : allWords) {
+			for (String w2 : voc) {
 				if (w.equals(w2))
 					wordsInDocInVoc.add(w);
 			}
@@ -112,9 +108,9 @@ public class Classifier {
 		String highesClass = "";
 		double highScore = 0;
 		for(DocumentClass dc : c) {
-			double score = (double) -Math.log(getPrior(dc));
+			double score = (double) -Math.log(getPrior(prior, dc));
 			for (String word : wordsInDocInVoc) {
-				double prob = getProbability(dc, word);
+				double prob = getProbability(probs, dc, word);
 				score += -Math.log(prob);
 			}
 			if (score < highScore || highScore == 0) {
@@ -125,7 +121,7 @@ public class Classifier {
 		return highesClass;
 	}
 	
-	public static double getProbability(DocumentClass c, String w) throws IOException {
+	public static double getProbability(HashMap<HashMap<DocumentClass, String>, Double> probability, DocumentClass c, String w) throws IOException {
 		for (HashMap<DocumentClass, String> hd : probability.keySet()) {
 			for (DocumentClass dc : hd.keySet()) {
 				if (dc.getName().equals(c.getName())) {
@@ -138,22 +134,22 @@ public class Classifier {
 		return 0;
 	}
 	
-	public static double getPrior(DocumentClass c) {
-			for (DocumentClass dc : classes.keySet()) {
+	public static double getPrior(HashMap<DocumentClass, Double> prior, DocumentClass c) {
+			for (DocumentClass dc : prior.keySet()) {
 				if (dc.getName().equals(c.getName())) {
-						return classes.get(dc);
+						return prior.get(dc);
 			}
 		}
 		return 0;
 	}
 	
-	public static void getProbsFromFile() throws IOException {
-		probability.clear();
-		File document = new File("probs.txt");
+	public static HashMap<HashMap<DocumentClass, String>, Double> getProbsFromFile(String corpus) throws IOException {
+		File document = new File(corpus+"probs.txt");
 		FileReader documentReader = new FileReader(document);
 		BufferedReader bf = new BufferedReader(documentReader);
 		String line;
 		String probs = "";
+		HashMap<HashMap<DocumentClass, String>, Double> probability = new HashMap<HashMap<DocumentClass, String>, Double>();
 		while ((line = bf.readLine()) != null) {
 			probs += line+ "\n";
 		}
@@ -166,13 +162,14 @@ public class Classifier {
 			double pv = Double.parseDouble(a[2]);
 			probability.put(dw, pv);
 		}
+                return probability;
 	}
-	public static void getPriorFromFile() throws IOException{
-		classes.clear();
-		File document = new File("prior.txt");
+	public static HashMap<DocumentClass, Double> getPriorFromFile(String corpus) throws IOException{
+		File document = new File(corpus+"prior.txt");
 		FileReader documentReader = new FileReader(document);
 		BufferedReader bf = new BufferedReader(documentReader);
 		String line;
+		HashMap<DocumentClass, Double> classes= new HashMap<DocumentClass, Double>();
 		String prior = "";
 		while ((line = bf.readLine()) != null) {
 			prior += line + "\n";
@@ -184,15 +181,15 @@ public class Classifier {
 			DocumentClass c = new DocumentClass(a[0]);
 			classes.put(c, pr);
 		}
+                return classes;
 	}
-	public static void getVocFromFile() throws IOException{
-		if (allWords != null)
-			allWords.clear();
-		File document = new File("voc.txt");
+	public static ArrayList<String> getVocFromFile(String corpus) throws IOException{
+		File document = new File(corpus+"voc.txt");
 		FileReader documentReader = new FileReader(document);
 		BufferedReader bf = new BufferedReader(documentReader);
 		String line;
 		String voc = "";
+		ArrayList<String> allWords = new ArrayList<String>();
 		while ((line = bf.readLine()) != null) {
 			voc += line+"\n";
 		}
@@ -200,5 +197,6 @@ public class Classifier {
 		for (String w : vocs) {
 			allWords.add(w);
 		}
+                return allWords;
 	}
 }

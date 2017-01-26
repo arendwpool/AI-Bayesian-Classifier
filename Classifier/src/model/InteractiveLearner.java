@@ -8,8 +8,9 @@ import java.util.ArrayList;
 
 public class InteractiveLearner {
 	
-	public static void learn(String file, DocumentClass[] c, DocumentClass wishedClass, ArrayList<FilteredDocument> docss, ArrayList<String> allwords) throws IOException {
+	public static void learn(String file, DocumentClass[] c, DocumentClass wishedClass, ArrayList<FilteredDocument> docss, String CorpusName) throws IOException {
 		ArrayList<String> words = DocumentUtils.readDocument(file);
+                ArrayList<String> allwords = Classifier.getVocFromFile();
 		File dir = new File("txt/Learner/"+wishedClass.getName());
 		dir.mkdirs();
 		PrintWriter writer = new PrintWriter("txt/Learner/"+ wishedClass.getName()+ "/" + System.currentTimeMillis() +".txt", "UTF-8");
