@@ -28,7 +28,6 @@ public class Classifier {
 		probability = new HashMap<HashMap<DocumentClass, String>, Double>();
 		ArrayList<FilteredDocument> docs = DocumentUtils.createFilteredDocuments(d);
         String corpus = d.get(1).split("\\\\")[d.get(1).split("\\\\").length-4];
-        writePath(docs.get(1));
         setGUI(gui);
         long start = System.currentTimeMillis();
 		allWords = DocumentUtils.finalVocabulary(d, trim, gui);
@@ -43,37 +42,24 @@ public class Classifier {
 				i++;
 				gui.setTrainProgress((i*50)/allWords.size());
 
-				calculate(ic, docs, word, corpus, false);
+				calculate(ic, docs, word, corpus);
 			}
 		}
+		writeToDoc(corpus);
                 long end = System.currentTimeMillis();
                 gui.setTrainingReady((double) (end-start));
 	}
 	
-	public static void calculate(DocumentClass ic,ArrayList<FilteredDocument> docs, String w, String corpus, boolean fromIL ) throws IOException{
-			probability = new HashMap<HashMap<DocumentClass, String>, Double>();
+	public static void calculate(DocumentClass ic,ArrayList<FilteredDocument> docs, String w, String corpus ) throws IOException{
             HashMap<DocumentClass, String> classTerm = new HashMap<DocumentClass, String>();
             classTerm.put(ic, w);
-            double prob = calcProbability(w, ic, docs, getVocFromFile(corpus));
+            double prob = calcProbability(w, ic, docs);
             probability.put(classTerm, prob);
-            writeToDoc(corpus, fromIL);
+            writeToDoc(corpus);
 		
 	}
-        private static void writePath(FilteredDocument d) throws FileNotFoundException {
-            String corpus = d.getPath().split("\\\\")[d.getPath().split("\\\\").length-4];
-            PrintWriter w = new PrintWriter(corpus + ".txt");
-            for (int i = 0; i < d.getPath().split("\\\\").length-3 ; i++) {
-            	if (i == d.getPath().split("\\\\").length-4)
-                	w.write(d.getPath().split("\\\\")[i]);
-            	else
-                	w.write(d.getPath().split("\\\\")[i]+"\\");
-            		
-            }
-            w.println();
-            w.close();
-        }
-    
-	public static void writeToDoc(String corpus, boolean fromIL) throws FileNotFoundException, UnsupportedEncodingException {
+
+	private static void writeToDoc(String corpus) throws FileNotFoundException, UnsupportedEncodingException {
 		PrintWriter writer = new PrintWriter(corpus+"probs.txt", "UTF-8");
 		PrintWriter writer2 = new PrintWriter(corpus+"prior.txt", "UTF-8");
 		PrintWriter writer3 = new PrintWriter(corpus+"voc.txt", "UTF-8");
@@ -83,14 +69,12 @@ public class Classifier {
 			}
 		}
 		writer.close();
-		if (fromIL == false) {
-			for (DocumentClass c : classes.keySet()) {
-				writer2.write(c.getName() + " : " + classes.get(c)+System.lineSeparator());
-			}
-			writer2.close();
-			for (String w :  allWords) {
-				writer3.write(w+System.lineSeparator());
-			}
+		for (DocumentClass c : classes.keySet()) {
+			writer2.write(c.getName() + " : " + classes.get(c)+System.lineSeparator());
+		}
+		writer2.close();
+		for (String w :  allWords) {
+			writer3.write(w+System.lineSeparator());
 		}
 		writer3.close();
 	    writer.println();
@@ -99,7 +83,7 @@ public class Classifier {
 		
 	}
 
-	private static double calcProbability(String word, DocumentClass c, ArrayList<FilteredDocument> d,  ArrayList<String> allWords) throws IOException {
+	private static double calcProbability(String word, DocumentClass c, ArrayList<FilteredDocument> d) throws IOException {
 		int numerator = DocumentUtils.countOccurancesInClass(word, d, c) + 2;
 		int denominator = 2;
 		for (String w : allWords) {
@@ -113,7 +97,7 @@ public class Classifier {
 		HashMap<HashMap<DocumentClass, String>, Double> probs = getProbsFromFile(corpus);
 		ArrayList<String> voc =getVocFromFile(corpus);
 		HashMap<DocumentClass, Double> prior =getPriorFromFile(corpus);
-		ArrayList<String> wordsInDocument = DocumentUtils.readDocument(d.getPath(), false);
+		ArrayList<String> wordsInDocument = DocumentUtils.readDocument(d.getPath());
 		ArrayList<String> wordsInDocInVoc = new ArrayList<String>();
 		for (String w : wordsInDocument) {
 			for (String w2 : voc) {
