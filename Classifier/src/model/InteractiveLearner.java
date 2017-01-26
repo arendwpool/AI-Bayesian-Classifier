@@ -11,12 +11,17 @@ import view.GUI;
 
 public class InteractiveLearner {
 	
+<<<<<<< HEAD
 	public static void learn(String file, DocumentClass[] c, DocumentClass wishedClass, String corpusName, GUI gui) throws IOException {
 		System.out.println("voor");
 		String root = DocumentUtils.readDocument(corpusName+".txt", true).get(0);
 		System.out.println("na");
 		ArrayList<String> words = DocumentUtils.readDocument(file, false);
         ArrayList<String> allwords = Classifier.getVocFromFile(corpusName);
+=======
+	public static void learn(String file, DocumentClass[] c, DocumentClass wishedClass, ArrayList<FilteredDocument> docss, ArrayList<String> allwords) throws IOException {
+		ArrayList<String> words = DocumentUtils.readDocument(file);
+>>>>>>> parent of 6f4cc7a... Fixt de shit
 		File dir = new File("txt/Learner/"+wishedClass.getName());
 		dir.mkdirs();
 		PrintWriter writer = new PrintWriter("txt/Learner/"+ wishedClass.getName()+ "/" + System.currentTimeMillis() +".txt", "UTF-8");

@@ -590,6 +590,7 @@ public class GUI extends javax.swing.JFrame {
     private void jButton4ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton4ActionPerformed
         addDocClass = jTextField1.getText();
         addDocCorpus = jTextField2.getText();
+<<<<<<< HEAD
         GUI gui = this;
         Runnable runner = new Runnable()
         {
@@ -604,6 +605,8 @@ public class GUI extends javax.swing.JFrame {
         };
         Thread t = new Thread(runner, "Code Executer");
         t.start();        
+=======
+>>>>>>> parent of 6f4cc7a... Fixt de shit
     }//GEN-LAST:event_jButton4ActionPerformed
 
     	public void setLearningProgress(int i) {
