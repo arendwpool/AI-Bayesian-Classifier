@@ -8,7 +8,7 @@ import java.util.ArrayList;
 
 public class InteractiveLearner {
 	
-	public static void learn(String file, DocumentClass[] c, DocumentClass wishedClass) throws IOException {
+	public static void learn(String file, DocumentClass[] c, DocumentClass wishedClass, ArrayList<FilteredDocument> docss, ArrayList<String> allwords) throws IOException {
 		ArrayList<String> words = DocumentUtils.readDocument(file);
 		File dir = new File("txt/Learner/"+wishedClass.getName());
 		dir.mkdirs();
@@ -29,7 +29,11 @@ public class InteractiveLearner {
 				}
 			}
 		}
-		
+		for(DocumentClass dc: c){
+			for(String word : allwords){
+				Classifier.calculate( dc, docss ,word);
+				}
+		}
 	}
 	public static void main(String[] args) throws IOException {
 		DocumentClass a = new DocumentClass("F");

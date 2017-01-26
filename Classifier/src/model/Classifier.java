@@ -39,13 +39,19 @@ public class Classifier {
 			for(String word : allWords) {
 				i++;
 				System.out.println("Train: "+(double)(i*50)/allWords.size());
-				HashMap<DocumentClass, String> classTerm = new HashMap<DocumentClass, String>();
-				classTerm.put(ic, word);
-				double prob = calcProbability(word, ic, docs);
-				probability.put(classTerm, prob);
+				calculate(ic, docs, word);
 			}
 		}
 		writeToDoc();
+	}
+	
+	public static void calculate(DocumentClass ic,ArrayList<FilteredDocument> docs, String w ) throws IOException{
+			HashMap<DocumentClass, String> classTerm = new HashMap<DocumentClass, String>();
+			classTerm.put(ic, w);
+			double prob = calcProbability(w, ic, docs);
+			probability.put(classTerm, prob);
+	writeToDoc();
+		
 	}
 
 	private static void writeToDoc() throws FileNotFoundException, UnsupportedEncodingException {
