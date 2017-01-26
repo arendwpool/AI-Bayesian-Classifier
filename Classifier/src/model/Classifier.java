@@ -9,6 +9,7 @@ import java.io.PrintWriter;
 import java.io.UnsupportedEncodingException;
 import java.util.ArrayList;
 import java.util.HashMap;
+import view.GUI;
 
 public class Classifier {
 	private static ArrayList<String> filepaths;
@@ -16,19 +17,24 @@ public class Classifier {
 	private static int numberOfDocuments;
 	private static HashMap<DocumentClass, Double> classes = new HashMap<DocumentClass, Double>();
 	private static HashMap<HashMap<DocumentClass, String>, Double> probability = new HashMap<HashMap<DocumentClass, String>, Double>();
+        private static GUI gui;
 	
 	public static void main(String[] args) throws IOException {
 				
 		DocumentClass class1 = new DocumentClass("Ham");
 		DocumentClass class2 = new DocumentClass("Spam");
 		DocumentClass[] classes = {class1, class2};
-		TrainMultinomialNaiveBayes(classes, DocumentUtils.loadDocuments("txt/corpus-mails/train"), 300);
+		//TrainMultinomialNaiveBayes(classes, DocumentUtils.loadDocuments("txt/corpus-mails/train"), 300);
 		
 	}
 	
-	public static void TrainMultinomialNaiveBayes(DocumentClass[] c, ArrayList<String> d, int trim) throws IOException {
+        public static void setGUI(GUI guiTL) {
+            gui = guiTL;
+        }
+	public static void TrainMultinomialNaiveBayes(DocumentClass[] c, ArrayList<String> d, int trim, GUI gui) throws IOException {
 		ArrayList<FilteredDocument> docs = DocumentUtils.createFilteredDocuments(d);
-		allWords = DocumentUtils.finalVocabulary(d, trim);
+                setGUI(gui);
+		allWords = DocumentUtils.finalVocabulary(d, trim, gui);
 		numberOfDocuments = docs.size();
 		int i = 0;
 		for(DocumentClass ic : c) {
@@ -39,6 +45,7 @@ public class Classifier {
 			for(String word : allWords) {
 				i++;
 				System.out.println("Train: "+(double)(i*50)/allWords.size());
+                                gui.setTrainProgress((i*50)/allWords.size());
 				HashMap<DocumentClass, String> classTerm = new HashMap<DocumentClass, String>();
 				classTerm.put(ic, word);
 				double prob = calcProbability(word, ic, docs);

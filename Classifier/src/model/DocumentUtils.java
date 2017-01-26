@@ -17,6 +17,7 @@ import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 import java.util.stream.Stream;
+import view.GUI;
 
 
 public class DocumentUtils {
@@ -199,13 +200,14 @@ public class DocumentUtils {
             "yourself\n" +
             "yourselves");
 	
-	public static ArrayList<String> finalVocabulary(ArrayList<String> filepaths, int trim) throws IOException {
+	public static ArrayList<String> finalVocabulary(ArrayList<String> filepaths, int trim, GUI gui) throws IOException {
 		ArrayList<FilteredDocument> docs = createFilteredDocuments(filepaths);
 		ArrayList<DocumentClass> c = new ArrayList<DocumentClass>();
 		int i = 0;
 		for (FilteredDocument d : docs) {
 			i++;
 			System.out.println("load docs: " + (double)(i*100)/docs.size());
+                        gui.setLoadProgress((i*100)/docs.size());
 			if (c.size() == 0) {
 				c.add(d.getDocumentlass());
 			} else {
@@ -220,7 +222,7 @@ public class DocumentUtils {
 				}
 			}
 		}
-		ArrayList<String> vocab = orderByChiSquare(docs, c, trim);
+		ArrayList<String> vocab = orderByChiSquare(docs, c, trim, gui);
 		for(String v : vocab) {
 			//System.out.println(v);
 		}
@@ -243,7 +245,7 @@ public class DocumentUtils {
 
 	public static ArrayList<String> FilterSplitText(String totalText) throws IOException {
 		ArrayList<String> result = new ArrayList<String>();
-		totalText = totalText.replaceAll("[,.\\\\/\\[\\]|\".,'{};:<>0-9?!@#$%^&()*\\-=+_`€¤]", " ");
+		totalText = totalText.replaceAll("[,.\\\\/\\[\\]|\".,'{};:<>0-9?!@#$%^&()*\\-=+_`ï¿½ï¿½]", " ");
 		totalText = Normalizer.normalize(totalText, Normalizer.Form.NFD).replaceAll("[^\\p{ASCII}]", "");
 		String lowercased = totalText.toLowerCase();
 		lowercased = lowercased.trim();
@@ -372,11 +374,11 @@ public class DocumentUtils {
 	}
 	
 	public static void main(String[] args) throws IOException {
-		finalVocabulary(loadDocuments("txt/blogs/train"), 100);
+		//finalVocabulary(loadDocuments("txt/blogs/train"), 100);
 		
 	}
 	
-	public static ArrayList<String> orderByChiSquare(ArrayList<FilteredDocument> docs, ArrayList<DocumentClass> c, Integer trimlevel) throws IOException {
+	public static ArrayList<String> orderByChiSquare(ArrayList<FilteredDocument> docs, ArrayList<DocumentClass> c, Integer trimlevel, GUI gui) throws IOException {
 		ArrayList<String> allwords = extractVocabulary(docs);
 		Set<String> words = new HashSet<String>(allwords);
 		HashMap<String, Double> chis = new HashMap<String, Double>();
@@ -384,7 +386,9 @@ public class DocumentUtils {
 		for(String word : words) {
 			i++;
 			System.out.println("chi: "+(double) (i*100)/words.size());
-			double chi = chiSquare(word, c, docs);
+                        
+                        gui.setChiProgress((i*100)/words.size());
+			double chi = chiSquare(word, c, docs, gui);
 			chis.put(word, chi);
 		}
 		ArrayList<String> result = orderHashmap(chis, trimlevel);
@@ -434,7 +438,7 @@ public class DocumentUtils {
 		return W1;
 	}
 	
-	public static double chiSquare(String w, ArrayList<DocumentClass> c, ArrayList<FilteredDocument> d) throws IOException{
+	public static double chiSquare(String w, ArrayList<DocumentClass> c, ArrayList<FilteredDocument> d, GUI gui) throws IOException{
 		HashMap<DocumentClass, Integer> M1 = new HashMap<DocumentClass, Integer>();
 		HashMap<DocumentClass, Integer> M2 = new HashMap<DocumentClass, Integer>();
 		int N = d.size();
@@ -480,5 +484,17 @@ public class DocumentUtils {
 	
 	public static double expectedValue(int W, int C, int N){
 		return (double) (W * C)/ N;
+	}
+	
+	public static DocumentClass[] getClasses(String rootfolder) {
+		ArrayList<DocumentClass> deelpath = new ArrayList<DocumentClass>();
+		String s = rootfolder + "\\train";
+		File file = new File(s);
+		String[] names = file.list();
+		for(String name : names)
+		{
+			deelpath.add(new DocumentClass(name));
+		}
+		return deelpath.toArray(new DocumentClass[deelpath.size()]);
 	}
 }
