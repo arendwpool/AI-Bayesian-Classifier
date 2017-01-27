@@ -6,6 +6,7 @@
 package view;
 
 import java.io.File;
+import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
 import java.text.DecimalFormat;
@@ -17,6 +18,7 @@ import model.Classifier;
 import model.DocumentClass;
 import model.DocumentUtils;
 import model.FilteredDocument;
+import model.InteractiveLearner;
 
 /**
  *
@@ -345,7 +347,12 @@ public class GUI extends javax.swing.JFrame {
         jButton4.setText("Test!");
         jButton4.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
-                jButton4ActionPerformed(evt);
+                try {
+					jButton4ActionPerformed(evt);
+				} catch (FileNotFoundException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
             }
         });
 
@@ -516,7 +523,7 @@ public class GUI extends javax.swing.JFrame {
         try {
             
             DocumentClass[] c = DocumentUtils.getClasses(rootFolder);
-            ArrayList<String> d = DocumentUtils.loadDocuments(rootFolder + "\\train");
+            ArrayList<String> d = DocumentUtils.loadDocuments(rootFolder + "\\test");
             Classifier.TrainMultinomialNaiveBayes(c, d, vocSize, gui);
         } catch (IOException ex) {
             Logger.getLogger(GUI.class.getName()).log(Level.SEVERE, null, ex);
@@ -587,9 +594,22 @@ public class GUI extends javax.swing.JFrame {
         
     }//GEN-LAST:event_jButton2ActionPerformed
 
-    private void jButton4ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton4ActionPerformed
-        addDocClass = jTextField1.getText();
-        addDocCorpus = jTextField2.getText();
+    private void jButton4ActionPerformed(java.awt.event.ActionEvent evt) throws FileNotFoundException {//GEN-FIRST:event_jButton4ActionPerformed
+        try {                                         
+            addDocClass = jTextField1.getText();
+            addDocCorpus = jTextField2.getText();
+            String rootfolder = "";
+            GUI gui = this;
+            Classifier.getRoot(addDocCorpus);
+            try {
+                InteractiveLearner.learn(addDocPath, addDocCorpus ,DocumentUtils.getClasses(rootFolder), new DocumentClass(addDocClass),vocSize, gui);
+            } catch (IOException ex) {
+                Logger.getLogger(GUI.class.getName()).log(Level.SEVERE, null, ex);
+            }
+            
+        } catch (IOException ex) {
+            Logger.getLogger(GUI.class.getName()).log(Level.SEVERE, null, ex);
+        }
         
     }//GEN-LAST:event_jButton4ActionPerformed
 

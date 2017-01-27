@@ -46,9 +46,23 @@ public class Classifier {
 			}
 		}
 		writeToDoc(corpus);
-                long end = System.currentTimeMillis();
-                gui.setTrainingReady((double) (end-start));
-	}
+        long end = System.currentTimeMillis();
+        gui.setTrainingReady((double) (end-start));
+        PrintWriter writer = new PrintWriter(d.get(0).split("\\\\")[d.get(0).split("\\\\").length-4] + ".txt");
+        String path = d.get(0);
+        String [] pathArray = path.split("\\\\");
+        String root = "";
+        for (int i2 = 0; i2 < pathArray.length-3; i2++) {
+            if (!(i2 == pathArray.length-4)){
+                root += pathArray[i2] + "\\";
+            } else {
+                root += pathArray[i2]; 
+            }
+        }
+        System.out.println(root);
+        writer.println();
+        writer.close();
+        }
 	
 	public static void calculate(DocumentClass ic,ArrayList<FilteredDocument> docs, String w, String corpus ) throws IOException{
             HashMap<DocumentClass, String> classTerm = new HashMap<DocumentClass, String>();
@@ -199,4 +213,16 @@ public class Classifier {
 		}
                 return allWords;
 	}
+
+    public static String getRoot(String addDocCorpus) throws IOException {
+        FileReader dr = new FileReader(new File(addDocCorpus + ".txt"));
+        BufferedReader bf =  new BufferedReader(dr);
+        String line;
+        String path = "";
+        while((line = bf.readLine()) != null) {
+        	path += line;
+        }
+        bf.close();
+        return path;
+    }
 }

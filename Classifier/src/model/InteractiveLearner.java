@@ -6,11 +6,11 @@ import java.io.IOException;
 import java.io.PrintWriter;
 import java.util.ArrayList;
 
+import view.GUI;
+
 public class InteractiveLearner {
-	
-	public static void learn(String file, DocumentClass[] c, DocumentClass wishedClass, ArrayList<FilteredDocument> docss, String CorpusName) throws IOException {
+	public static void learn(String file, String corpus, DocumentClass[] c, DocumentClass wishedClass, int trim, GUI gui) throws IOException {
 		ArrayList<String> words = DocumentUtils.readDocument(file);
-                ArrayList<String> allwords = Classifier.getVocFromFile();
 		File dir = new File("txt/Learner/"+wishedClass.getName());
 		dir.mkdirs();
 		PrintWriter writer = new PrintWriter("txt/Learner/"+ wishedClass.getName()+ "/" + System.currentTimeMillis() +".txt", "UTF-8");
@@ -19,7 +19,8 @@ public class InteractiveLearner {
 		}
 		writer.close();
 		writer.println();
-		ArrayList<String> docs = DocumentUtils.loadDocuments("txt/blogs/train");
+                String root = Classifier.getRoot(corpus);
+		ArrayList<String> docs = DocumentUtils.loadDocuments(root);
 		for (String path : DocumentUtils.loadDocuments("txt/Learner/")) {
 			for (DocumentClass dc : c) {
 				String[] split = path.split("\\\\");
@@ -30,11 +31,7 @@ public class InteractiveLearner {
 				}
 			}
 		}
-		for(DocumentClass dc: c){
-			for(String word : allwords){
-				Classifier.calculate( dc, docss ,word);
-				}
-		}
+		Classifier.TrainMultinomialNaiveBayes(c, docs, trim, gui);
 	}
 	public static void main(String[] args) throws IOException {
 		DocumentClass a = new DocumentClass("F");
