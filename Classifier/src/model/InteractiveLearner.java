@@ -9,7 +9,7 @@ import java.util.ArrayList;
 import view.GUI;
 
 public class InteractiveLearner {
-	public static void learn(String file, String corpus, DocumentClass[] c, DocumentClass wishedClass, int trim, GUI gui) throws IOException {
+	public static void learn(String file, String corpus, DocumentClass[] c, DocumentClass wishedClass, GUI gui, boolean train, double k) throws IOException {
 		ArrayList<String> words = DocumentUtils.readDocument(file);
 		File dir = new File("txt/Learner/"+wishedClass.getName());
 		dir.mkdirs();
@@ -31,15 +31,15 @@ public class InteractiveLearner {
 				}
 			}
 		}
-		Classifier.TrainMultinomialNaiveBayes(c, docs, trim, gui);
+                if (train == true)
+		Classifier.TrainMultinomialNaiveBayes(c, docs, Classifier.getVocFromFile(corpus).size(), gui, k);
 	}
-	public static void main(String[] args) throws IOException {
-		DocumentClass a = new DocumentClass("F");
-		DocumentClass b = new DocumentClass("M");
-		DocumentClass[] sadrf = { a, b };
-//		learn("txt/blogs/Train/M/M-train4.txt", sadrf, b, 200, false);
-//		learn("txt/blogs/Train/M/M-train5.txt", sadrf, b, 200, false);
-//		learn("txt/blogs/Train/M/M-train6.txt", sadrf, b, 200, false);
-//		learn("txt/blogs/Train/M/M-train8.txt", sadrf, b, 200, true);
-	}
+
+    public static void deleteFiles() throws IOException {
+        ArrayList<String> files = DocumentUtils.loadDocuments("txt/Learner");
+        for (String path : files) {
+            File file = new File(path);
+            file.delete();
+        }
+    }
 }

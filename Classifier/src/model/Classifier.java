@@ -22,7 +22,7 @@ public class Classifier {
         public static void setGUI(GUI guiTL) {
             gui = guiTL;
         }
-	public static void TrainMultinomialNaiveBayes(DocumentClass[] c, ArrayList<String> d, int trim, GUI gui) throws IOException {
+	public static void TrainMultinomialNaiveBayes(DocumentClass[] c, ArrayList<String> d, int trim, GUI gui, double k) throws IOException {
 		allWords  = new ArrayList<String>();
 		classes  = new HashMap<DocumentClass, Double>();
 		probability = new HashMap<HashMap<DocumentClass, String>, Double>();
@@ -42,7 +42,7 @@ public class Classifier {
 				i++;
 				gui.setTrainProgress((i*50)/allWords.size());
 
-				calculate(ic, docs, word, corpus);
+				calculate(ic, docs, word, corpus, k);
 			}
 		}
 		writeToDoc(corpus);
@@ -59,15 +59,14 @@ public class Classifier {
                 root += pathArray[i2]; 
             }
         }
-        System.out.println(root);
-        writer.println();
+        writer.println(root);
         writer.close();
         }
 	
-	public static void calculate(DocumentClass ic,ArrayList<FilteredDocument> docs, String w, String corpus ) throws IOException{
+	public static void calculate(DocumentClass ic,ArrayList<FilteredDocument> docs, String w, String corpus, double k) throws IOException{
             HashMap<DocumentClass, String> classTerm = new HashMap<DocumentClass, String>();
             classTerm.put(ic, w);
-            double prob = calcProbability(w, ic, docs);
+            double prob = calcProbability(w, ic, docs, k);
             probability.put(classTerm, prob);
             writeToDoc(corpus);
 		
@@ -97,9 +96,9 @@ public class Classifier {
 		
 	}
 
-	private static double calcProbability(String word, DocumentClass c, ArrayList<FilteredDocument> d) throws IOException {
-		int numerator = DocumentUtils.countOccurancesInClass(word, d, c) + 2;
-		int denominator = 2;
+	private static double calcProbability(String word, DocumentClass c, ArrayList<FilteredDocument> d, double k) throws IOException {
+		double numerator = DocumentUtils.countOccurancesInClass(word, d, c) + k;
+		double denominator = k;
 		for (String w : allWords) {
 			denominator += DocumentUtils.countOccurancesInClass(w, d, c);
 		}
